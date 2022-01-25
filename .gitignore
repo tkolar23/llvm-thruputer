@@ -51,6 +51,12 @@ docs/_build
 .vs
 # VS output
 out
+# Nested build directory
+/build*
+# lit
+/utils/lit/
+# msbuild
+/tools*
 
 #==============================================================================#
 # Files created in tree by the Go bindings.
