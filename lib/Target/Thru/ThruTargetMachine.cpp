@@ -13,23 +13,23 @@
 #include "ThruTargetMachine.h"
 #include "TargetInfo/ThruTargetInfo.h"
 #include "llvm/MC/TargetRegistry.h"
-// #include "MCTargetDesc/ThruBaseInfo.h"
 #include "Thru.h"
+// #include "MCTargetDesc/ThruBaseInfo.h"
 // #include "ThruTargetObjectFile.h"
 // #include "ThruTargetTransformInfo.h"
-#include "llvm/ADT/STLExtras.h"
-#include "llvm/Analysis/TargetTransformInfo.h"
-#include "llvm/CodeGen/GlobalISel/IRTranslator.h"
-#include "llvm/CodeGen/GlobalISel/InstructionSelect.h"
-#include "llvm/CodeGen/GlobalISel/Legalizer.h"
-#include "llvm/CodeGen/GlobalISel/RegBankSelect.h"
-#include "llvm/CodeGen/Passes.h"
-#include "llvm/CodeGen/TargetLoweringObjectFileImpl.h"
-#include "llvm/CodeGen/TargetPassConfig.h"
-#include "llvm/IR/LegacyPassManager.h"
-#include "llvm/InitializePasses.h"
-#include "llvm/Support/FormattedStream.h"
-#include "llvm/Target/TargetOptions.h"
+// #include "llvm/ADT/STLExtras.h"
+// #include "llvm/Analysis/TargetTransformInfo.h"
+// #include "llvm/CodeGen/GlobalISel/IRTranslator.h"
+// #include "llvm/CodeGen/GlobalISel/InstructionSelect.h"
+// #include "llvm/CodeGen/GlobalISel/Legalizer.h"
+// #include "llvm/CodeGen/GlobalISel/RegBankSelect.h"
+// #include "llvm/CodeGen/Passes.h"
+// #include "llvm/CodeGen/TargetLoweringObjectFileImpl.h"
+// #include "llvm/CodeGen/TargetPassConfig.h"
+// #include "llvm/IR/LegacyPassManager.h"
+// #include "llvm/InitializePasses.h"
+// #include "llvm/Support/FormattedStream.h"
+// #include "llvm/Target/TargetOptions.h"
 using namespace llvm;
 
 extern "C" LLVM_EXTERNAL_VISIBILITY void LLVMInitializeThruTarget() {
@@ -40,4 +40,23 @@ extern "C" LLVM_EXTERNAL_VISIBILITY void LLVMInitializeThruTarget() {
 
 static StringRef computeDataLayout(const Triple &TT) {
   return "e-m:e-p:32:32-i64:64-n32-S128";
+}
+
+static Reloc::Model getEffectiveRelocModel(const Triple &TT,
+                                           Optional<Reloc::Model> RM) {
+  if (!RM.hasValue())
+    return Reloc::Static;
+  return *RM;
+}
+
+ThruTargetMachine::ThruTargetMachine(const Target &T, const Triple &TT,
+                                       StringRef CPU, StringRef FS,
+                                       const TargetOptions &Options,
+                                       Optional<Reloc::Model> RM,
+                                       Optional<CodeModel::Model> CM,
+                                       CodeGenOpt::Level OL, bool JIT)
+    : LLVMTargetMachine(T, computeDataLayout(TT), TT, CPU, FS, Options,
+                        getEffectiveRelocModel(TT, RM),
+                        getEffectiveCodeModel(CM, CodeModel::Small), OL) {
+
 }
