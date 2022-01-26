@@ -12,7 +12,6 @@
 namespace llvm {
 
 class Target;
-
 Target &getTheThruTarget();
 
 } // namespace llvm

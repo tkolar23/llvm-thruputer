@@ -42,18 +42,18 @@ add_llvm_target(ThruCodeGen
   # ThruTargetTransformInfo.cpp
 
   LINK_COMPONENTS
-  # Analysis
-  # AsmPrinter
-  # Core
-  # CodeGen
-  # MC
-  # ThruDesc
-  # ThruInfo
-  # SelectionDAG
-  # Support
+  Analysis
+  AsmPrinter
+  Core
+  CodeGen
+  MC
+  ThruDesc
+  ThruInfo
+  SelectionDAG
+  Support
   Target
-  # TransformUtils
-  # GlobalISel
+  TransformUtils
+  GlobalISel
 
   ADD_TO_COMPONENT
   Thru
@@ -61,5 +61,5 @@ add_llvm_target(ThruCodeGen
 
 # add_subdirectory(AsmParser)
 # add_subdirectory(Disassembler)
-# add_subdirectory(MCTargetDesc)
+add_subdirectory(MCTargetDesc)
 add_subdirectory(TargetInfo)

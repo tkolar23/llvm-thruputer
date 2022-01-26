@@ -15,38 +15,18 @@
 
 // #include "MCTargetDesc/ThruMCTargetDesc.h"
 // #include "ThruSubtarget.h"
-#include "llvm/CodeGen/SelectionDAGTargetInfo.h"
-#include "llvm/IR/DataLayout.h"
+// #include "llvm/CodeGen/SelectionDAGTargetInfo.h"
+// #include "llvm/IR/DataLayout.h"
 #include "llvm/Target/TargetMachine.h"
 
 namespace llvm {
 class ThruTargetMachine : public LLVMTargetMachine {
-  std::unique_ptr<TargetLoweringObjectFile> TLOF;
-  // mutable StringMap<std::unique_ptr<ThruSubtarget>> SubtargetMap;
 
 public:
-  // ThruTargetMachine(const Target &T, const Triple &TT, StringRef CPU,
-  //                    StringRef FS, const TargetOptions &Options,
-  //                    Optional<Reloc::Model> RM, Optional<CodeModel::Model> CM,
-  //                    CodeGenOpt::Level OL, bool JIT);
-
-  // const ThruSubtarget *getSubtargetImpl(const Function &F) const override;
-  // // DO NOT IMPLEMENT: There is no such thing as a valid default subtarget,
-  // // subtargets are per-function entities based on the target-specific
-  // // attributes of each function.
-  // const ThruSubtarget *getSubtargetImpl() const = delete;
-
-  // TargetPassConfig *createPassConfig(PassManagerBase &PM) override;
-
-  // TargetLoweringObjectFile *getObjFileLowering() const override {
-  //   return TLOF.get();
-  // }
-
-  // TargetTransformInfo getTargetTransformInfo(const Function &F) override;
-
-  // virtual bool isNoopAddrSpaceCast(unsigned SrcAS,
-  //                                  unsigned DstAS) const override;
+  ThruTargetMachine(const Target &T, const Triple &TT, StringRef CPU, StringRef FS,
+                    const TargetOptions &Options, Optional<Reloc::Model> RM,
+                    Optional<CodeModel::Model> CM, CodeGenOpt::Level OL, bool JIT);
 };
-} // namespace llvm
+} // end namespace llvm
 
 #endif

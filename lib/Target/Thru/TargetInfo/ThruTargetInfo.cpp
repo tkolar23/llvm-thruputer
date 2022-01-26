@@ -10,12 +10,13 @@
 #include "llvm/MC/TargetRegistry.h"
 using namespace llvm;
 
+// Global target instance getter
 Target &llvm::getTheThruTarget() {
   static Target TheThruTarget;
   return TheThruTarget;
 }
 
-extern "C" LLVM_EXTERNAL_VISIBILITY void LLVMInitializeRISCVTargetInfo() {
-  RegisterTarget<Triple::thru> X(getTheThruTarget(), "thru",
-                                    "ThruPuter", "Thru");
+extern "C" LLVM_EXTERNAL_VISIBILITY void LLVMInitializeThruTargetInfo() {
+  // Helper template for registering a target
+  RegisterTarget<Triple::thru> X(getTheThruTarget(), "thru", "ThruPuter machine", "Thru");
 }

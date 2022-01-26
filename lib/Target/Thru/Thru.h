@@ -33,6 +33,6 @@ class ThruTargetMachine;
 // InstructionSelector *createThruInstructionSelector(const ThruTargetMachine &,
 //                                                     ThruSubtarget &,
 //                                                     ThruRegisterBankInfo &);
-// }
+}
 
 #endif
