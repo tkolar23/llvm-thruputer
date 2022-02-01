@@ -10,7 +10,32 @@
 //  Declarations that describe the Thru register file
 //===----------------------------------------------------------------------===//
 
-class ThruReg<bits<4> Enc, string n> : Register<n> {
+class ThruReg<bits<16> Enc, string n> : Register<n> {
   let HWEncoding = Enc;
   let Namespace = "TP";
 }
+
+// ThruPuter CPU Registers
+class ThruGPRReg<bits<16> Enc, string n> : ThruReg<Enc, n>;
+
+let Namespace = "TP" in {
+  // General Purpose Registers
+  def R0 : ThruGPRReg< 0, "0" >, DwarfRegNum<[0]>;
+  def R1 : ThruGPRReg< 1, "1" >, DwarfRegNum<[1]>;
+  def R2 : ThruGPRReg< 2, "2" >, DwarfRegNum<[2]>;
+  def R3 : ThruGPRReg< 3, "3" >, DwarfRegNum<[3]>;
+  def R4 : ThruGPRReg< 4, "4" >, DwarfRegNum<[4]>;
+  def R5 : ThruGPRReg< 5, "5" >, DwarfRegNum<[5]>;
+  def R6 : ThruGPRReg< 6, "6" >, DwarfRegNum<[6]>;
+  def R7 : ThruGPRReg< 7, "7" >, DwarfRegNum<[7]>;
+}
+
+//===----------------------------------------------------------------------===//
+// Register Classes
+//===----------------------------------------------------------------------===//
+
+class GPRClass<list<ValueType> regTypes> :
+  RegisterClass<"TP", regTypes, 64, (add
+  // General Purpose
+  R0, R1, R2, R3, R4, R5, R6, R7)>;
+
