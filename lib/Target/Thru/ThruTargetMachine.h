@@ -16,7 +16,7 @@
 // #include "MCTargetDesc/ThruMCTargetDesc.h"
 // #include "ThruSubtarget.h"
 // #include "llvm/CodeGen/SelectionDAGTargetInfo.h"
-#include "llvm/IR/DataLayout.h"
+// #include "llvm/IR/DataLayout.h"
 #include "llvm/Target/TargetMachine.h"
 
 namespace llvm {
@@ -29,6 +29,7 @@ public:
                     Optional<Reloc::Model> RM,
                     Optional<CodeModel::Model> CM,
                     CodeGenOpt::Level OL, bool JIT);
+  ~ThruTargetMachine() override;
 };
 } // end namespace llvm
 

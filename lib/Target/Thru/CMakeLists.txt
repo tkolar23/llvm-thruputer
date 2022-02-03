@@ -12,11 +12,11 @@ set(LLVM_TARGET_DEFINITIONS Thru.td)
 # tablegen(LLVM ThruGenMCCodeEmitter.inc -gen-emitter)
 # tablegen(LLVM ThruGenMCPseudoLowering.inc -gen-pseudo-lowering)
 # tablegen(LLVM ThruGenRegisterBank.inc -gen-register-bank)
-# tablegen(LLVM ThruGenRegisterInfo.inc -gen-register-info)
+tablegen(LLVM ThruGenRegisterInfo.inc -gen-register-info)
 # tablegen(LLVM ThruGenSearchableTables.inc -gen-searchable-tables)
 # tablegen(LLVM ThruGenSubtargetInfo.inc -gen-subtarget)
 
-# add_public_tablegen_target(ThruCommonTableGen)
+add_public_tablegen_target(ThruCommonTableGen)
 
 add_llvm_target(ThruCodeGen
   # ThruAsmPrinter.cpp
@@ -34,7 +34,7 @@ add_llvm_target(ThruCodeGen
   # ThruMCInstLower.cpp
   # ThruMergeBaseOffset.cpp
   # ThruRegisterBankInfo.cpp
-  # ThruRegisterInfo.cpp
+  ThruRegisterInfo.cpp
   # ThruSExtWRemoval.cpp
   # ThruSubtarget.cpp
   ThruTargetMachine.cpp

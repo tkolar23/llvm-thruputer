@@ -55,5 +55,5 @@ def Thru : Target {
 //   let InstructionSet = ThruInstrInfo;
 //   let AssemblyParsers = [ThruAsmParser];
 //   let AssemblyWriters = [ThruAsmWriter];
-//   let AllowRegisterRenaming = 1;
+  // let AllowRegisterRenaming = 1;
 }

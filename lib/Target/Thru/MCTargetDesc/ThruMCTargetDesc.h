@@ -24,7 +24,7 @@ namespace llvm {
 // class MCContext;
 // class MCInstrInfo;
 // class MCObjectTargetWriter;
-// class MCRegisterInfo;
+class MCRegisterInfo;
 // class MCSubtargetInfo;
 class Target;
 
@@ -40,9 +40,9 @@ class Target;
 //                                                                  bool Is64Bit);
 }
 
-// // Defines symbolic names for RISC-V registers.
-// #define GET_REGINFO_ENUM
-// #include "ThruGenRegisterInfo.inc"
+// Defines symbolic names for registers.
+#define GET_REGINFO_ENUM
+#include "ThruGenRegisterInfo.inc"
 
 // // Defines symbolic names for RISC-V instructions.
 // #define GET_INSTRINFO_ENUM

@@ -35,8 +35,8 @@
 // #define GET_INSTRINFO_MC_DESC
 // #include "ThruGenInstrInfo.inc"
 
-// #define GET_REGINFO_MC_DESC
-// #include "ThruGenRegisterInfo.inc"
+#define GET_REGINFO_MC_DESC
+#include "ThruGenRegisterInfo.inc"
 
 // #define GET_SUBTARGETINFO_MC_DESC
 // #include "ThruGenSubtargetInfo.inc"
@@ -49,11 +49,11 @@ using namespace llvm;
 //   return X;
 // }
 
-// static MCRegisterInfo *createThruMCRegisterInfo(const Triple &TT) {
-//   MCRegisterInfo *X = new MCRegisterInfo();
-//   InitThruMCRegisterInfo(X, Thru::X1);
-//   return X;
-// }
+static MCRegisterInfo *createThruMCRegisterInfo(const Triple &TT) {
+  MCRegisterInfo *X = new MCRegisterInfo();
+  InitThruMCRegisterInfo(X, TP::R0);
+  return X;
+}
 
 // static MCAsmInfo *createThruMCAsmInfo(const MCRegisterInfo &MRI,
 //                                        const Triple &TT,
@@ -164,5 +164,7 @@ using namespace llvm;
 
 extern "C" LLVM_EXTERNAL_VISIBILITY void LLVMInitializeThruTargetMC() {
   for (Target *T : {&getTheThruTarget()}) {
+    // Register the MC register info.
+    TargetRegistry::RegisterMCRegInfo(*T, createThruMCRegisterInfo);
   }
 }

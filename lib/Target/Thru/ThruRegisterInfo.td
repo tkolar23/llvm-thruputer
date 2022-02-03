@@ -34,8 +34,4 @@ let Namespace = "TP" in {
 // Register Classes
 //===----------------------------------------------------------------------===//
 
-class GPRClass<list<ValueType> regTypes> :
-  RegisterClass<"TP", regTypes, 64, (add
-  // General Purpose
-  R0, R1, R2, R3, R4, R5, R6, R7)>;
-
+def IntRegs : RegisterClass<"TP", [i64], 64, (add (sequence "R%u", 0, 7))>;
