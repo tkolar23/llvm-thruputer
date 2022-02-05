@@ -18,7 +18,7 @@
 #include "llvm/Target/TargetMachine.h"
 
 namespace llvm {
-class ThruRegisterBankInfo;
+// class ThruRegisterBankInfo;
 // class ThruSubtarget;
 class ThruTargetMachine;
 // class AsmPrinter;
