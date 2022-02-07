@@ -61,6 +61,7 @@ def BOD_PACK  : BinaryOD<15>; //pack
 class ThruInst<dag outs, dag ins, list<dag> pattern, InstFormat format>
     : Instruction {
     field bits<32> Inst;
+    
     // SoftFail is a field the disassembler can use to provide a way for
     // instructions to not match without killing the whole decode process. It is
     // mainly used for ARM, but Tablegen expects this field to exist or it fails
@@ -97,22 +98,22 @@ class ThruInst<dag outs, dag ins, list<dag> pattern, InstFormat format>
 class ThruInst0_2<BinaryOD BOD, SimpleOD SOD, dag outs, dag ins>
     : ThruInst<outs, ins, [], InstFormat0_2> {
     //Dir Z (MD)
-    bits<4> MDt; //target
-    bits<4> MDs; //source
+    bits<4> MDt = 0; //target
+    bits<4> MDs = 0; //source
     let Inst{31-28} = MDt;
     let Inst{27-24} = MDs;
     
     //Dir Y (BOD)
-    bits<3> yo;
-    bits<3> yr;
+    bits<3> yo = 0;
+    bits<3> yr = 0;
     let Inst{21-18} = BOD;
     let Inst{17-15} = yo;
     let Inst{14-12} = yr;
 
     //Dir X (SOD)
-    bits<3> srcA; //in this case yl
-    bits<3> xr;
-    bits<3> xo;
+    bits<3> srcA = 0;
+    bits<3> xr = 0;
+    bits<3> xo = 0;
     let Inst{11-9} = srcA;
     let Inst{8-6}  = xr;
     let Inst{5-3}  = xo;
