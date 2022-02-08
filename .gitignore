@@ -57,6 +57,8 @@ out
 /utils/lit/
 # msbuild
 /tools*
+# temporary folder
+temp/
 
 #==============================================================================#
 # Files created in tree by the Go bindings.

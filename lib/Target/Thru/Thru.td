@@ -23,7 +23,7 @@ include "llvm/Target/Target.td"
 //===----------------------------------------------------------------------===//
 
 // include "ThruSchedule.td"
-// include "ThruRegisterInfo.td"
+include "ThruRegisterInfo.td"
 // include "ThruCallingConv.td"
 // include "ThruInstrInfo.td"
 // include "ThruRegisterBanks.td"
@@ -55,5 +55,5 @@ def Thru : Target {
 //   let InstructionSet = ThruInstrInfo;
 //   let AssemblyParsers = [ThruAsmParser];
 //   let AssemblyWriters = [ThruAsmWriter];
-//   let AllowRegisterRenaming = 1;
+  // let AllowRegisterRenaming = 1;
 }

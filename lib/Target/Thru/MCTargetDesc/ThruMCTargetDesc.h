@@ -13,8 +13,6 @@
 #ifndef LLVM_LIB_TARGET_THRU_MCTARGETDESC_THRUMCTARGETDESC_H
 #define LLVM_LIB_TARGET_THRU_MCTARGETDESC_THRUMCTARGETDESC_H
 
-#include "llvm/Config/config.h"
-#include "llvm/MC/MCTargetOptions.h"
 #include "llvm/Support/DataTypes.h"
 #include <memory>
 
@@ -24,9 +22,12 @@ namespace llvm {
 // class MCContext;
 // class MCInstrInfo;
 // class MCObjectTargetWriter;
-// class MCRegisterInfo;
+class MCRegisterInfo;
 // class MCSubtargetInfo;
+// class MCTargetOptions;
+class StringRef;
 class Target;
+class Triple;
 
 // MCCodeEmitter *createThruMCCodeEmitter(const MCInstrInfo &MCII,
 //                                         const MCRegisterInfo &MRI,
@@ -38,15 +39,15 @@ class Target;
 
 // std::unique_ptr<MCObjectTargetWriter> createThruELFObjectWriter(uint8_t OSABI,
 //                                                                  bool Is64Bit);
-}
+} // end llvm namespace
 
-// // Defines symbolic names for RISC-V registers.
-// #define GET_REGINFO_ENUM
-// #include "ThruGenRegisterInfo.inc"
+// Defines symbolic names for registers.
+#define GET_REGINFO_ENUM
+#include "ThruGenRegisterInfo.inc"
 
-// // Defines symbolic names for RISC-V instructions.
-// #define GET_INSTRINFO_ENUM
-// #include "ThruGenInstrInfo.inc"
+// Defines symbolic names for Thru instructions.
+#define GET_INSTRINFO_ENUM
+#include "ThruGenInstrInfo.inc"
 
 // #define GET_SUBTARGETINFO_ENUM
 // #include "ThruGenSubtargetInfo.inc"
