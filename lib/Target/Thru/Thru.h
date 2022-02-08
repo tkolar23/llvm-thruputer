@@ -7,32 +7,25 @@
 //===----------------------------------------------------------------------===//
 //
 // This file contains the entry points for global functions defined in the LLVM
-// RISC-V back-end.
+// Thru back-end.
 //
 //===----------------------------------------------------------------------===//
 
 #ifndef LLVM_LIB_TARGET_THRU_THRU_H
 #define LLVM_LIB_TARGET_THRU_THRU_H
 
-// #include "MCTargetDesc/ThruBaseInfo.h"
+#include "MCTargetDesc/ThruMCTargetDesc.h"
 #include "llvm/Target/TargetMachine.h"
 
 namespace llvm {
-// class ThruRegisterBankInfo;
-// class ThruSubtarget;
-class ThruTargetMachine;
-// class AsmPrinter;
-// class FunctionPass;
-// class InstructionSelector;
-// class MCInst;
-// class MCOperand;
-// class MachineInstr;
-// class MachineOperand;
-// class PassRegistry;
+  class ThruTargetMachine;
+//   class ModulePass;
+//   class FunctionPass;
+//   class ThruRegisterBankInfo;
+//   class ThruSubtarget;
+//   class InstructionSelector;
+//   class PassRegistry;
 
-// InstructionSelector *createThruInstructionSelector(const ThruTargetMachine &,
-//                                                     ThruSubtarget &,
-//                                                     ThruRegisterBankInfo &);
 }
 
 #endif

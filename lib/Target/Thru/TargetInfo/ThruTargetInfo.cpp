@@ -18,5 +18,5 @@ Target &llvm::getTheThruTarget() {
 
 extern "C" LLVM_EXTERNAL_VISIBILITY void LLVMInitializeThruTargetInfo() {
   // Helper template for registering a target
-  RegisterTarget<Triple::thru> X(getTheThruTarget(), "thru", "ThruPuter machine", "Thru");
+  RegisterTarget<Triple::thru> X(getTheThruTarget(), "thru", "ThruPuter", "Thru");
 }
