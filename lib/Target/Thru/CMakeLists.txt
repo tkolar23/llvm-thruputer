@@ -14,7 +14,7 @@ set(LLVM_TARGET_DEFINITIONS Thru.td)
 # tablegen(LLVM ThruGenRegisterBank.inc -gen-register-bank)
 tablegen(LLVM ThruGenRegisterInfo.inc -gen-register-info)
 # tablegen(LLVM ThruGenSearchableTables.inc -gen-searchable-tables)
-# tablegen(LLVM ThruGenSubtargetInfo.inc -gen-subtarget)
+tablegen(LLVM ThruGenSubtargetInfo.inc -gen-subtarget)
 
 add_public_tablegen_target(ThruCommonTableGen)
 
@@ -23,7 +23,7 @@ add_llvm_target(ThruCodeGen
   # ThruCallLowering.cpp
   # ThruExpandAtomicPseudoInsts.cpp
   # ThruExpandPseudoInsts.cpp
-  # ThruFrameLowering.cpp
+  ThruFrameLowering.cpp
   # ThruGatherScatterLowering.cpp
   # ThruInsertVSETVLI.cpp
   # ThruInstrInfo.cpp
@@ -34,9 +34,9 @@ add_llvm_target(ThruCodeGen
   # ThruMCInstLower.cpp
   # ThruMergeBaseOffset.cpp
   # ThruRegisterBankInfo.cpp
-  # ThruRegisterInfo.cpp
+  ThruRegisterInfo.cpp
   # ThruSExtWRemoval.cpp
-  # ThruSubtarget.cpp
+  ThruSubtarget.cpp
   ThruTargetMachine.cpp
   # ThruTargetObjectFile.cpp
   # ThruTargetTransformInfo.cpp
