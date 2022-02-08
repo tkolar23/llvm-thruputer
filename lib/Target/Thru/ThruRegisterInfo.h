@@ -22,8 +22,6 @@ namespace llvm {
 struct ThruRegisterInfo : public ThruGenRegisterInfo {
   ThruRegisterInfo();
 
-  // Code Generation virtual methods...
-
 };
 
 } // end namespace llvm
