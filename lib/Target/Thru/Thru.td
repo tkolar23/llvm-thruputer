@@ -25,7 +25,7 @@ include "llvm/Target/Target.td"
 // include "ThruSchedule.td"
 include "ThruRegisterInfo.td"
 // include "ThruCallingConv.td"
-// include "ThruInstrInfo.td"
+include "ThruInstrInfo.td"
 // include "ThruRegisterBanks.td"
 // include "ThruSchedRocket.td"
 // include "ThruSchedSiFive7.td"
@@ -38,9 +38,9 @@ include "ThruRegisterInfo.td"
 // Define the RISC-V target.
 //===----------------------------------------------------------------------===//
 
-// def ThruInstrInfo : InstrInfo {
-//   let guessInstructionProperties = 0;
-// }
+def ThruInstrInfo : InstrInfo {
+  let guessInstructionProperties = 0;
+}
 
 // def ThruAsmParser : AsmParser {
 //   let ShouldEmitMatchRegisterAltName = 1;
@@ -52,7 +52,7 @@ include "ThruRegisterInfo.td"
 // }
 
 def Thru : Target {
-//   let InstructionSet = ThruInstrInfo;
+	let InstructionSet = ThruInstrInfo;
 //   let AssemblyParsers = [ThruAsmParser];
 //   let AssemblyWriters = [ThruAsmWriter];
   // let AllowRegisterRenaming = 1;

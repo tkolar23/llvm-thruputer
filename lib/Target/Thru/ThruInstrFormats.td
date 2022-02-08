@@ -24,7 +24,7 @@ class SimpleOD<bits<3> val> {
 }
 def SOD_ADD : SimpleOD<0>; //add
 def SOD_SUB : SimpleOD<1>; //subtract
-def SOD_SHL : SimpleOD<2>: //shift left
+def SOD_SHL : SimpleOD<2>; //shift left
 def SOD_SHR : SimpleOD<3>; //shift right
 def SOD_AND : SimpleOD<4>; //and
 def SOD_OR  : SimpleOD<5>; //or
@@ -106,7 +106,7 @@ class ThruInst0_2<BinaryOD BOD, SimpleOD SOD, dag outs, dag ins>
     //Dir Y (BOD)
     bits<3> yo = 0;
     bits<3> yr = 0;
-    let Inst{21-18} = BOD;
+    let Inst{21-18} = BOD.value;
     let Inst{17-15} = yo;
     let Inst{14-12} = yr;
 
@@ -117,7 +117,7 @@ class ThruInst0_2<BinaryOD BOD, SimpleOD SOD, dag outs, dag ins>
     let Inst{11-9} = srcA;
     let Inst{8-6}  = xr;
     let Inst{5-3}  = xo;
-    let Inst{2-0}  = SOD;
+    let Inst{2-0}  = SOD.value;
 
     let Ctrl = 0;
 }

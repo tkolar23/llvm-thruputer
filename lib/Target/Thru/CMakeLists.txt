@@ -23,7 +23,7 @@ add_llvm_target(ThruCodeGen
   # ThruCallLowering.cpp
   # ThruExpandAtomicPseudoInsts.cpp
   # ThruExpandPseudoInsts.cpp
-  ThruFrameLowering.cpp
+  # ThruFrameLowering.cpp
   # ThruGatherScatterLowering.cpp
   # ThruInsertVSETVLI.cpp
   ThruInstrInfo.cpp
@@ -34,9 +34,9 @@ add_llvm_target(ThruCodeGen
   # ThruMCInstLower.cpp
   # ThruMergeBaseOffset.cpp
   # ThruRegisterBankInfo.cpp
-  ThruRegisterInfo.cpp
+  # ThruRegisterInfo.cpp
   # ThruSExtWRemoval.cpp
-  ThruSubtarget.cpp
+  # ThruSubtarget.cpp
   ThruTargetMachine.cpp
   # ThruTargetObjectFile.cpp
   # ThruTargetTransformInfo.cpp

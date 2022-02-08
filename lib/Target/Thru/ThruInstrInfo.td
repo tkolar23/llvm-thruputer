@@ -3,13 +3,14 @@
 //===----------------------------------------------------------------------===//
 
 include "ThruInstrFormats.td"
+// include "ThruRegisterInfo.td"
 
 //===----------------------------------------------------------------------===//
 // Instruction Class Templates
 //===----------------------------------------------------------------------===//
 
 let hasSideEffects = 0, mayLoad = 0, mayStore = 0 in
-class X_acc<SimpleOD SOD> : ThruInst0_2<0b0, SOD, (outs GPR:$xo), (ins GPR:$srcA, GPR:$xr)>;
+class X_acc<SimpleOD SOD> : ThruInst0_2<BOD_ADD, SOD, (outs IntRegs:$xo), (ins IntRegs:$srcA, IntRegs:$xr)>;
 
 //===----------------------------------------------------------------------===//
 // Instructions
@@ -27,8 +28,8 @@ def XOR : X_acc<SOD_XOR>;
 
 //Move instruction
 //only register-register move (no immediates/literals)
-let isMoveReg in
-def MOV : ThruInst0_2<0b0, 0b0, (outs GPR:$MDt), ins GPR:$MDs)>;
+let isMoveReg = 1, hasSideEffects = 0, mayLoad = 0, mayStore = 0 in
+def MOV : ThruInst0_2<BOD_ADD, SOD_ADD, (outs IntRegs:$MDt), (ins IntRegs:$MDs)>;
 
 //Load and Store instructions
 //remember ld will put result in ld register and str will place contents of str register in instance memory
