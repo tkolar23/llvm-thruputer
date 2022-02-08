@@ -8,7 +8,7 @@ set(LLVM_TARGET_DEFINITIONS Thru.td)
 # tablegen(LLVM ThruGenDAGISel.inc -gen-dag-isel)
 # tablegen(LLVM ThruGenDisassemblerTables.inc -gen-disassembler)
 # tablegen(LLVM ThruGenGlobalISel.inc -gen-global-isel)
-# tablegen(LLVM ThruGenInstrInfo.inc -gen-instr-info)
+tablegen(LLVM ThruGenInstrInfo.inc -gen-instr-info)
 # tablegen(LLVM ThruGenMCCodeEmitter.inc -gen-emitter)
 # tablegen(LLVM ThruGenMCPseudoLowering.inc -gen-pseudo-lowering)
 # tablegen(LLVM ThruGenRegisterBank.inc -gen-register-bank)
@@ -26,7 +26,7 @@ add_llvm_target(ThruCodeGen
   # ThruFrameLowering.cpp
   # ThruGatherScatterLowering.cpp
   # ThruInsertVSETVLI.cpp
-  # ThruInstrInfo.cpp
+  ThruInstrInfo.cpp
   # ThruInstructionSelector.cpp
   # ThruISelDAGToDAG.cpp
   # ThruISelLowering.cpp
