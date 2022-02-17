@@ -762,6 +762,7 @@ static Triple::ObjectFormatType getDefaultFormat(const Triple &T) {
   case Triple::thumbeb:
   case Triple::ve:
   case Triple::xcore:
+  case Triple::thru:
     return Triple::ELF;
 
   case Triple::ppc64:
@@ -783,8 +784,6 @@ static Triple::ObjectFormatType getDefaultFormat(const Triple &T) {
   case Triple::spirv64:
     // TODO: In future this will be Triple::SPIRV.
     return Triple::UnknownObjectFormat;
-  case Triple::thru:
-    return Triple::ELF;
   }
   llvm_unreachable("unknown architecture");
 }
@@ -1407,7 +1406,7 @@ Triple Triple::get32BitArchVariant() const {
   case Triple::wasm32:
   case Triple::x86:
   case Triple::xcore:
-    // Already 32-bit.
+  // Already 32-bit.
     break;
 
   case Triple::aarch64:        T.setArch(Triple::arm);     break;

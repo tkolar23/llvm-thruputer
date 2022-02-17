@@ -1,43 +1,92 @@
 //===-- ThruMCTargetDesc.cpp - Thru Target Descriptions -----------------===//
 //
-// Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.
-// See https://llvm.org/LICENSE.txt for license information.
-// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+//                     The LLVM Compiler Infrastructure
+//
+// This file is distributed under the University of Illinois Open Source
+// License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-///
-/// This file provides Thru-specific target descriptions.
-///
+//
+// This file provides Thru specific target descriptions.
+//
 //===----------------------------------------------------------------------===//
 
 #include "ThruMCTargetDesc.h"
-// #include "ThruAsmBackend.h"
-// #include "ThruBaseInfo.h"
-// #include "ThruELFStreamer.h"
-// #include "ThruInstPrinter.h"
-// #include "ThruMCAsmInfo.h"
-// #include "ThruMCNaCl.h"
-// #include "ThruTargetStreamer.h"
+#include "ThruInstPrinter.h"
+#include "ThruMCAsmInfo.h"
 #include "TargetInfo/ThruTargetInfo.h"
-#include "llvm/ADT/Triple.h"
-#include "llvm/MC/MCCodeEmitter.h"
 #include "llvm/MC/MCELFStreamer.h"
 #include "llvm/MC/MCInstrAnalysis.h"
+#include "llvm/MC/MCInstPrinter.h"
 #include "llvm/MC/MCInstrInfo.h"
-#include "llvm/MC/MCObjectWriter.h"
 #include "llvm/MC/MCRegisterInfo.h"
 #include "llvm/MC/MCSubtargetInfo.h"
-#include "llvm/MC/MCSymbol.h"
-#include "llvm/MC/MachineLocation.h"
 #include "llvm/MC/TargetRegistry.h"
-#include "llvm/Support/ErrorHandling.h"
-#include "llvm/Support/FormattedStream.h"
+
+using namespace llvm;
 
 #define GET_INSTRINFO_MC_DESC
 #include "ThruGenInstrInfo.inc"
 
-using namespace llvm;
+#define GET_SUBTARGETINFO_MC_DESC
+#include "ThruGenSubtargetInfo.inc"
 
-extern "C" LLVM_EXTERNAL_VISIBILITY void LLVMInitializeThruTargetMC() {
-  for (Target *T : {&getTheThruTarget()}) { }
+#define GET_REGINFO_MC_DESC
+#include "ThruGenRegisterInfo.inc"
+
+static MCInstrInfo *createThruMCInstrInfo() {
+  MCInstrInfo *X = new MCInstrInfo();
+  InitThruMCInstrInfo(X);
+  return X;
+}
+
+static MCRegisterInfo *createThruMCRegisterInfo(const Triple &TT) {
+  MCRegisterInfo *X = new MCRegisterInfo();
+  return X;
+}
+
+static MCSubtargetInfo *
+createThruMCSubtargetInfo(const Triple &TT, StringRef CPU, StringRef FS) {
+  if (CPU.empty())
+    CPU = "generic";
+  return createThruMCSubtargetInfoImpl(TT, CPU, /*TuneCPU*/ CPU, FS);
+}
+
+static MCInstPrinter *createThruMCInstPrinter(const Triple &T,
+                                               unsigned SyntaxVariant,
+                                               const MCAsmInfo &MAI,
+                                               const MCInstrInfo &MII,
+                                               const MCRegisterInfo &MRI) {
+  return new ThruInstPrinter(MAI, MII, MRI);
+}
+
+static MCAsmInfo *createThruMCAsmInfo(const MCRegisterInfo &MRI,
+                                       const Triple &TT,
+                                       const MCTargetOptions &Options) {
+  MCAsmInfo *MAI = new ThruMCAsmInfo(TT);
+
+  MCRegister SP = MRI.getDwarfRegNum(Thru::X2, true);
+  MCCFIInstruction Inst = MCCFIInstruction::cfiDefCfa(nullptr, SP, 0);
+  MAI->addInitialFrameState(Inst);
+
+  return MAI;
+}
+
+extern "C" void LLVMInitializeThruTargetMC() {
+  for (Target *T : {&getTheThruTarget()}) {
+    // Register the MC asm info.
+    TargetRegistry::RegisterMCAsmInfo(*T, createThruMCAsmInfo);
+
+    // Register the MC instruction info.
+    TargetRegistry::RegisterMCInstrInfo(*T, createThruMCInstrInfo);
+
+    // Register the MC register info.
+    TargetRegistry::RegisterMCRegInfo(*T, createThruMCRegisterInfo);
+
+    // Register the MC subtarget info.
+    TargetRegistry::RegisterMCSubtargetInfo(*T, createThruMCSubtargetInfo);
+
+    // Register the MCInstPrinter.
+    TargetRegistry::RegisterMCInstPrinter(*T, createThruMCInstPrinter);
+  }
 }

@@ -13,43 +13,42 @@
 #ifndef LLVM_LIB_TARGET_THRU_MCTARGETDESC_THRUMCTARGETDESC_H
 #define LLVM_LIB_TARGET_THRU_MCTARGETDESC_THRUMCTARGETDESC_H
 
+#include "llvm/Config/config.h"
+#include "llvm/MC/MCTargetOptions.h"
 #include "llvm/Support/DataTypes.h"
 #include <memory>
 
 namespace llvm {
-// class MCAsmBackend;
-// class MCCodeEmitter;
-// class MCContext;
-// class MCInstrInfo;
-// class MCObjectTargetWriter;
+class MCAsmBackend;
+class MCCodeEmitter;
+class MCContext;
+class MCInstrInfo;
+class MCObjectTargetWriter;
 class MCRegisterInfo;
-// class MCSubtargetInfo;
-// class MCTargetOptions;
-class StringRef;
+class MCSubtargetInfo;
 class Target;
-class Triple;
 
-// MCCodeEmitter *createThruMCCodeEmitter(const MCInstrInfo &MCII,
-//                                         const MCRegisterInfo &MRI,
-//                                         MCContext &Ctx);
+MCCodeEmitter *createThruMCCodeEmitter(const MCInstrInfo &MCII,
+                                        const MCRegisterInfo &MRI,
+                                        MCContext &Ctx);
 
-// MCAsmBackend *createThruAsmBackend(const Target &T, const MCSubtargetInfo &STI,
-//                                     const MCRegisterInfo &MRI,
-//                                     const MCTargetOptions &Options);
+MCAsmBackend *createThruAsmBackend(const Target &T, const MCSubtargetInfo &STI,
+                                    const MCRegisterInfo &MRI,
+                                    const MCTargetOptions &Options);
 
-// std::unique_ptr<MCObjectTargetWriter> createThruELFObjectWriter(uint8_t OSABI,
-//                                                                  bool Is64Bit);
-} // end llvm namespace
+std::unique_ptr<MCObjectTargetWriter> createThruELFObjectWriter(uint8_t OSABI,
+                                                                 bool Is64Bit);
+}
 
-// Defines symbolic names for registers.
+// Defines symbolic names for RISC-V registers.
 #define GET_REGINFO_ENUM
 #include "ThruGenRegisterInfo.inc"
 
-// Defines symbolic names for Thru instructions.
+// Defines symbolic names for RISC-V instructions.
 #define GET_INSTRINFO_ENUM
 #include "ThruGenInstrInfo.inc"
 
-// #define GET_SUBTARGETINFO_ENUM
-// #include "ThruGenSubtargetInfo.inc"
+#define GET_SUBTARGETINFO_ENUM
+#include "ThruGenSubtargetInfo.inc"
 
 #endif

@@ -1,8 +1,9 @@
-//===-- ThruTargetMachine.cpp - Define TargetMachine for Thru -----------===//
+//===-- ThruTargetMachine.cpp - Define TargetMachine for Thru -------------===//
 //
-// Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.
-// See https://llvm.org/LICENSE.txt for license information.
-// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+//                     The LLVM Compiler Infrastructure
+//
+// This file is distributed under the University of Illinois Open Source
+// License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
 //
@@ -11,39 +12,51 @@
 //===----------------------------------------------------------------------===//
 
 #include "ThruTargetMachine.h"
+#include "ThruISelDAGToDAG.h"
+#include "ThruSubtarget.h"
+#include "ThruTargetObjectFile.h"
 #include "TargetInfo/ThruTargetInfo.h"
-#include "llvm/MC/TargetRegistry.h"
-#include "Thru.h"
-// #include "MCTargetDesc/ThruBaseInfo.h"
-// #include "ThruTargetObjectFile.h"
-// #include "ThruTargetTransformInfo.h"
-#include "llvm/ADT/STLExtras.h"
-#include "llvm/Analysis/TargetTransformInfo.h"
-#include "llvm/CodeGen/GlobalISel/IRTranslator.h"
-#include "llvm/CodeGen/GlobalISel/InstructionSelect.h"
-#include "llvm/CodeGen/GlobalISel/Legalizer.h"
-#include "llvm/CodeGen/GlobalISel/RegBankSelect.h"
 #include "llvm/CodeGen/Passes.h"
-#include "llvm/CodeGen/TargetLoweringObjectFileImpl.h"
 #include "llvm/CodeGen/TargetPassConfig.h"
-#include "llvm/IR/LegacyPassManager.h"
-#include "llvm/InitializePasses.h"
-#include "llvm/Support/FormattedStream.h"
-#include "llvm/Target/TargetOptions.h"
+#include "llvm/MC/TargetRegistry.h"
+
 using namespace llvm;
 
 extern "C" LLVM_EXTERNAL_VISIBILITY void LLVMInitializeThruTarget() {
-  extern Target TheThruTarget;
-  // Helper template for registering a target machine implementation
+  // Register the target.
+  //- Little endian Target Machine
   RegisterTargetMachine<ThruTargetMachine> X(getTheThruTarget());
 }
 
-static StringRef computeDataLayout(const Triple &TT) {
-  return "e-m:e-p:32:32-i64:64-n32-S128";
+static std::string computeDataLayout() {
+  std::string Ret = "";
+
+  // Little endian
+  Ret += "e";
+
+  // ELF name mangling
+  Ret += "-m:e";
+
+  // 32-bit pointers, 32-bit aligned
+  Ret += "-p:32:32";
+
+  // 64-bit integers, 64 bit aligned
+  Ret += "-i64:64";
+
+  // 32-bit native integer width i.e register are 32-bit
+  Ret += "-n32";
+
+  // 128-bit natural stack alignment
+  Ret += "-S128";
+
+  return Ret;
 }
 
-static Reloc::Model getEffectiveRelocModel(Optional<Reloc::Model> RM) {
-  return RM.getValueOr(Reloc::Static);
+static Reloc::Model getEffectiveRelocModel(Optional<CodeModel::Model> CM,
+                                           Optional<Reloc::Model> RM) {
+  if (!RM.hasValue())
+    return Reloc::Static;
+  return *RM;
 }
 
 ThruTargetMachine::ThruTargetMachine(const Target &T, const Triple &TT,
@@ -51,11 +64,69 @@ ThruTargetMachine::ThruTargetMachine(const Target &T, const Triple &TT,
                                        const TargetOptions &Options,
                                        Optional<Reloc::Model> RM,
                                        Optional<CodeModel::Model> CM,
-                                       CodeGenOpt::Level OL, bool JIT)
-    : LLVMTargetMachine(T, computeDataLayout(TT), TT, CPU, FS, Options,
-                        getEffectiveRelocModel(RM),
-                        getEffectiveCodeModel(CM, CodeModel::Small), OL) {
-
+                                       CodeGenOpt::Level OL,
+                                       bool JIT)
+    : LLVMTargetMachine(T, computeDataLayout(), TT, CPU, FS, Options,
+                        getEffectiveRelocModel(CM, RM),
+                        getEffectiveCodeModel(CM, CodeModel::Medium), OL),
+      TLOF(std::make_unique<ThruTargetObjectFile>()) {
+  // initAsmInfo will display features by llc -march=thru on 3.7
+  initAsmInfo();
 }
 
-ThruTargetMachine::~ThruTargetMachine() {}
+const ThruSubtarget *
+ThruTargetMachine::getSubtargetImpl(const Function &F) const {
+  Attribute CPUAttr = F.getFnAttribute("target-cpu");
+  Attribute TuneAttr = F.getFnAttribute("tune-cpu");
+  Attribute FSAttr = F.getFnAttribute("target-features");
+
+  std::string CPU =
+      CPUAttr.isValid() ? CPUAttr.getValueAsString().str() : TargetCPU;
+  std::string TuneCPU =
+      TuneAttr.isValid() ? TuneAttr.getValueAsString().str() : CPU;
+  std::string FS =
+      FSAttr.isValid() ? FSAttr.getValueAsString().str() : TargetFS;
+  std::string Key = CPU + TuneCPU + FS;
+  auto &I = SubtargetMap[Key];
+  if (!I) {
+    // This needs to be done before we create a new subtarget since any
+    // creation will depend on the TM and the code generation flags on the
+    // function that reside in TargetOptions.
+    resetTargetOptions(F);
+    auto ABIName = Options.MCOptions.getABIName();
+    I = std::make_unique<ThruSubtarget>(TargetTriple, CPU, TuneCPU, FS, ABIName, *this);
+  }
+  return I.get();
+}
+
+namespace {
+class ThruPassConfig : public TargetPassConfig {
+public:
+  ThruPassConfig(ThruTargetMachine &TM, PassManagerBase &PM)
+    : TargetPassConfig(TM, PM) {}
+
+  ThruTargetMachine &getThruTargetMachine() const {
+    return getTM<ThruTargetMachine>();
+  }
+
+  bool addInstSelector() override;
+  void addPreEmitPass() override;
+};
+}
+
+TargetPassConfig *ThruTargetMachine::createPassConfig(PassManagerBase &PM) {
+  return new ThruPassConfig(*this, PM);
+}
+
+// Install an instruction selector pass using
+// the ISelDag to gen Thru code.
+bool ThruPassConfig::addInstSelector() {
+  addPass(new ThruDAGToDAGISel(getThruTargetMachine(), getOptLevel()));
+  return false;
+}
+
+// Implemented by targets that want to run passes immediately before
+// machine code is emitted. return true if -print-machineinstrs should
+// print out the code after the passes.
+void ThruPassConfig::addPreEmitPass() {
+}

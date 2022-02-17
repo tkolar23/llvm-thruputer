@@ -1,59 +1,40 @@
-//===-- Thru.td - Describe the Thru Target Machine -------*- tablegen -*-===//
+//=== Thru.td - Describe the Thru Target Machine ---------*- tablegen -*-===//
 //
-// Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.
-// See https://llvm.org/LICENSE.txt for license information.
-// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+//                     The LLVM Compiler Infrastructure
+//
+// This file is distributed under the University of Illinois Open Source
+// License. See LICENSE.TXT for details.
+//
+//===----------------------------------------------------------------------===//
+//
+// Top tablegen file that pulls in code from the LLVM framework along with
+// code specific to this target.
 //
 //===----------------------------------------------------------------------===//
 
 include "llvm/Target/Target.td"
 
 //===----------------------------------------------------------------------===//
-// RISC-V subtarget features and instruction predicates.
+// Calling Conv, Instruction Descriptions, Register information, etc
 //===----------------------------------------------------------------------===//
 
-//===----------------------------------------------------------------------===//
-// Named operands for CSR instructions.
-//===----------------------------------------------------------------------===//
-
-// include "ThruSystemOperands.td"
-
-//===----------------------------------------------------------------------===//
-// Registers, calling conventions, instruction descriptions.
-//===----------------------------------------------------------------------===//
-
-// include "ThruSchedule.td"
+include "ThruSchedule.td"
 include "ThruRegisterInfo.td"
-// include "ThruCallingConv.td"
+include "ThruCallingConv.td"
 include "ThruInstrInfo.td"
-// include "ThruRegisterBanks.td"
-// include "ThruSchedRocket.td"
-// include "ThruSchedSiFive7.td"
+
+def ThruInstrInfo : InstrInfo;
 
 //===----------------------------------------------------------------------===//
-// RISC-V processors supported.
+// Thru processors supported
 //===----------------------------------------------------------------------===//
 
+def : ProcessorModel<"generic",  NoSchedModel, []>;
+
 //===----------------------------------------------------------------------===//
-// Define the RISC-V target.
+// Thru Target declaration
 //===----------------------------------------------------------------------===//
-
-def ThruInstrInfo : InstrInfo {
-  let guessInstructionProperties = 0;
-}
-
-// def ThruAsmParser : AsmParser {
-//   let ShouldEmitMatchRegisterAltName = 1;
-//   let AllowDuplicateRegisterNames = 1;
-// }
-
-// def ThruAsmWriter : AsmWriter {
-//   int PassSubtarget = 1;
-// }
 
 def Thru : Target {
-	let InstructionSet = ThruInstrInfo;
-//   let AssemblyParsers = [ThruAsmParser];
-//   let AssemblyWriters = [ThruAsmWriter];
-  // let AllowRegisterRenaming = 1;
+  let InstructionSet = ThruInstrInfo;
 }

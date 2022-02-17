@@ -1201,6 +1201,8 @@ StringRef ELFObjectFile<ELFT>::getFileFormatName() const {
       return "elf32-sparc";
     case ELF::EM_AMDGPU:
       return "elf32-amdgpu";
+    case ELF::EM_THRU:
+      return "ELF32-thru";
     default:
       return "elf32-unknown";
     }
@@ -1265,6 +1267,13 @@ template <class ELFT> Triple::ArchType ELFObjectFile<ELFT>::getArch() const {
       return IsLittleEndian ? Triple::mips64el : Triple::mips64;
     default:
       report_fatal_error("Invalid ELFCLASS!");
+    }
+  case ELF::EM_THRU:
+    switch (EF.getHeader().e_ident[ELF::EI_CLASS]) {
+      case ELF::ELFCLASS32:
+        return Triple::thru;
+      default:
+        report_fatal_error("Invalid ELFCLASS!");
     }
   case ELF::EM_MSP430:
     return Triple::msp430;

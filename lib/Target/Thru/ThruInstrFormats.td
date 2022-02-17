@@ -1,123 +1,145 @@
-//gives unique identifier to each possible instruction format
-//In this case each InstFormat describes a range of instruction formats with the same fields
-//although those fields may describe different things (but are still the same length)
-//maybe in future give these better names
+//=== ThruInstrFormats.td - Thru Instruction Formats -----*- tablegen -*-===//
+//
+//                     The LLVM Compiler Infrastructure
+//
+// This file is distributed under the University of Illinois Open Source
+// License. See LICENSE.TXT for details.
+//
+//===----------------------------------------------------------------------===//
+
+//===----------------------------------------------------------------------===//
+//
+//  These instruction format definitions are structured to match the
+//  description in the RISC-V User-Level ISA specification as closely as
+//  possible. For instance, the specification describes instructions with the
+//  MSB (31st bit) on the left and the LSB (0th bit) on the right. This is
+//  reflected in the order of parameters to each instruction class.
+//
+//  One area of divergence is in the description of immediates. The
+//  specification describes immediate encoding in terms of bit-slicing
+//  operations on the logical value represented. The immediate argument to
+//  these instruction formats instead represents the bit sequence that will be
+//  inserted into the instruction. e.g. although JAL's immediate is logically
+//  a 21-bit value (where the LSB is always zero), we describe it as an imm20
+//  to match how it is encoded.
+//
+//===----------------------------------------------------------------------===//
+
+// Format specifies the encoding used by the instruction. This is used by
+// ThruMCCodeEmitter to determine which form of fixup to use. These
+// definitions must be kept in-sync with ThruBaseInfo.h.
 class InstFormat<bits<5> val> {
   bits<5> Value = val;
 }
-def InstFormat0_2   : InstFormat<0>;
-def InstFormat3_5   : InstFormat<1>;
-def InstFormat6     : InstFormat<2>;
-def InstFormat7_8   : InstFormat<3>;
-def InstFormat9     : InstFormat<4>;
-def InstFormat10    : InstFormat<5>;
-def InstFormat11_13 : InstFormat<6>;
-def InstFormat14_16 : InstFormat<7>;
-def InstFormat17    : InstFormat<8>;
-def InstFormat18_19 : InstFormat<9>;
-def InstFormat20    : InstFormat<10>;
-def InstFormat21    : InstFormat<11>;
+def InstFormatPseudo : InstFormat<0>;
+def InstFormatR      : InstFormat<1>;
+def InstFormatR4     : InstFormat<2>;
+def InstFormatI      : InstFormat<3>;
+def InstFormatS      : InstFormat<4>;
+def InstFormatB      : InstFormat<5>;
+def InstFormatU      : InstFormat<6>;
+def InstFormatJ      : InstFormat<7>;
+def InstFormatCR     : InstFormat<8>;
+def InstFormatCI     : InstFormat<9>;
+def InstFormatCSS    : InstFormat<10>;
+def InstFormatCIW    : InstFormat<11>;
+def InstFormatCL     : InstFormat<12>;
+def InstFormatCS     : InstFormat<13>;
+def InstFormatCA     : InstFormat<14>;
+def InstFormatCB     : InstFormat<15>;
+def InstFormatCJ     : InstFormat<16>;
+def InstFormatOther  : InstFormat<17>;
 
-//Simple Operational Directives (SOD)
-class SimpleOD<bits<3> val> {
-    bits<3> value = val;
+// The following opcode names match those given in Table 19.1 in the
+// RISC-V User-level ISA specification ("RISC-V base opcode map").
+class ThruOpcode<bits<7> val> {
+  bits<7> Value = val;
 }
-def SOD_ADD : SimpleOD<0>; //add
-def SOD_SUB : SimpleOD<1>; //subtract
-def SOD_SHL : SimpleOD<2>; //shift left
-def SOD_SHR : SimpleOD<3>; //shift right
-def SOD_AND : SimpleOD<4>; //and
-def SOD_OR  : SimpleOD<5>; //or
-def SOD_XOR : SimpleOD<6>; //xor
-//SOD value 111 turns the Directive X into a meta-move (MMD) instead of using SOD
-//so maybe it shouldn't belong here? who knows
-def SOD_MMD : SimpleOD<7>;
+def OPC_LOAD      : ThruOpcode<0b0000011>;
+def OPC_LOAD_FP   : ThruOpcode<0b0000111>;
+def OPC_MISC_MEM  : ThruOpcode<0b0001111>;
+def OPC_OP_IMM    : ThruOpcode<0b0010011>;
+def OPC_AUIPC     : ThruOpcode<0b0010111>;
+def OPC_OP_IMM_32 : ThruOpcode<0b0011011>;
+def OPC_STORE     : ThruOpcode<0b0100011>;
+def OPC_STORE_FP  : ThruOpcode<0b0100111>;
+def OPC_AMO       : ThruOpcode<0b0101111>;
+def OPC_OP        : ThruOpcode<0b0110011>;
+def OPC_LUI       : ThruOpcode<0b0110111>;
+def OPC_OP_32     : ThruOpcode<0b0111011>;
+def OPC_MADD      : ThruOpcode<0b1000011>;
+def OPC_MSUB      : ThruOpcode<0b1000111>;
+def OPC_NMSUB     : ThruOpcode<0b1001011>;
+def OPC_NMADD     : ThruOpcode<0b1001111>;
+def OPC_OP_FP     : ThruOpcode<0b1010011>;
+def OPC_BRANCH    : ThruOpcode<0b1100011>;
+def OPC_JALR      : ThruOpcode<0b1100111>;
+def OPC_JAL       : ThruOpcode<0b1101111>;
+def OPC_SYSTEM    : ThruOpcode<0b1110011>;
 
-//Binary Operational Directives (BOD)
-class BinaryOD<bits<4> val> {
-    bits<4> value = val;
-}
-def BOD_ADD   : BinaryOD<0>; //add
-def BOD_SUB   : BinaryOD<1>; //subtract
-def BOD_MUL   : BinaryOD<2>; //multiply
-def BOD_DIV   : BinaryOD<3>; //divide
-def BOD_MIN   : BinaryOD<4>; //minimum
-def BOD_MAX   : BinaryOD<5>; //maxmimum
-def BOD_CAST  : BinaryOD<6>; //cast
-def BOD_REIN  : BinaryOD<7>; //reinterpret
-def BOD_SHL   : BinaryOD<8>; //shift left
-def BOD_SHR   : BinaryOD<9>; //shift right
-def BOD_SHLF  : BinaryOD<10>; //shift left with fill
-def BOD_SHRE  : BinaryOD<11>; //shift right with extend
-def BOD_AND   : BinaryOD<12>; //and
-def BOD_OR    : BinaryOD<13>; //or
-def BOD_XOR   : BinaryOD<14>; //xor
-def BOD_PACK  : BinaryOD<15>; //pack 
-
-//TODO: Unary ODs, maybe certain Ld/Str/MMD encodings 
-
-//Top-level class for all Thruputer Instructions
-//Look at llvm/include/lvvm/Target/Target.td for Instruction superclass
-class ThruInst<dag outs, dag ins, list<dag> pattern, InstFormat format>
+class RWInst<dag outs, dag ins, string opcodestr, string argstr,
+             list<dag> pattern, InstFormat format>
     : Instruction {
-    field bits<32> Inst;
-    
-    // SoftFail is a field the disassembler can use to provide a way for
-    // instructions to not match without killing the whole decode process. It is
-    // mainly used for ARM, but Tablegen expects this field to exist or it fails
-    // to build the decode table.
-    field bits<32> SoftFail = 0;
-    let Size = 4;
+  field bits<32> Inst;
+  // SoftFail is a field the disassembler can use to provide a way for
+  // instructions to not match without killing the whole decode process. It is
+  // mainly used for ARM, but Tablegen expects this field to exist or it fails
+  // to build the decode table.
+  field bits<32> SoftFail = 0;
+  let Size = 4;
 
-    //Overall fields shared by all formats
-    bits<2>  Ctrl = 0;
-    let Inst{23-22} = Ctrl;
+  bits<7> Opcode = 0;
 
-    let Namespace = "Thru";
+  let Inst{6-0} = Opcode;
 
-    //defines operands (imms, registers, stack locs, global address, etc.) produced and consumed by instr
-    //Used in MI stage for scheduling I think
-    dag OutOperandList = outs;
-    dag InOperandList = ins;
+  let Namespace = "Thru";
 
-    //no need to define asm code for intruction
-    //maybe add later for debugging?
-    //let AsmString = opcodestr # "\t" # argstr;
+  dag OutOperandList = outs;
+  dag InOperandList = ins;
+  let AsmString = opcodestr # "\t" # argstr;
+  let Pattern = pattern;
 
-    //superclass says set this to DAG pattern for instruction
-    //presumably code generator will do this or 
-    let Pattern = pattern;
-
-    // Target-specific flags. This becomes the TSFlags field in TargetInstrDesc.
-    //Not really sure what this does yet (looks like it just gives the value 0-21 of the instruction's format?)
-    let TSFlags{4-0} = format.Value;
+  let TSFlags{4-0} = format.Value;
 }
 
-//Define classes for each format
-//For now only instruction formats 0,1,2
-class ThruInst0_2<BinaryOD BOD, SimpleOD SOD, dag outs, dag ins>
-    : ThruInst<outs, ins, [], InstFormat0_2> {
-    //Dir Z (MD)
-    bits<4> MDt = 0; //target
-    bits<4> MDs = 0; //source
-    let Inst{31-28} = MDt;
-    let Inst{27-24} = MDs;
-    
-    //Dir Y (BOD)
-    bits<3> yo = 0;
-    bits<3> yr = 0;
-    let Inst{21-18} = BOD.value;
-    let Inst{17-15} = yo;
-    let Inst{14-12} = yr;
+// Pseudo instructions
+class Pseudo<dag outs, dag ins, list<dag> pattern, string opcodestr = "",
+             string argstr = "">
+    : RWInst<outs, ins, opcodestr, argstr, pattern, InstFormatPseudo>,
+      Sched<[]> {
+  let isPseudo = 1;
+  let isCodeGenOnly = 1;
+}
 
-    //Dir X (SOD)
-    bits<3> srcA = 0;
-    bits<3> xr = 0;
-    bits<3> xo = 0;
-    let Inst{11-9} = srcA;
-    let Inst{8-6}  = xr;
-    let Inst{5-3}  = xo;
-    let Inst{2-0}  = SOD.value;
+// Instruction formats are listed in the order they appear in the RISC-V
+// instruction set manual (R, I, S, B, U, J) with sub-formats (e.g. RWInstR4,
+// RWInstRAtomic) sorted alphabetically.
 
-    let Ctrl = 0;
+class RWInstR<bits<7> funct7, bits<3> funct3, ThruOpcode opcode, dag outs,
+              dag ins, string opcodestr, string argstr>
+    : RWInst<outs, ins, opcodestr, argstr, [], InstFormatR> {
+  bits<5> rs2;
+  bits<5> rs1;
+  bits<5> rd;
+
+  let Inst{31-25} = funct7;
+  let Inst{24-20} = rs2;
+  let Inst{19-15} = rs1;
+  let Inst{14-12} = funct3;
+  let Inst{11-7} = rd;
+  let Opcode = opcode.Value;
+}
+
+class RWInstI<bits<3> funct3, ThruOpcode opcode, dag outs, dag ins,
+              string opcodestr, string argstr>
+    : RWInst<outs, ins, opcodestr, argstr, [], InstFormatI> {
+  bits<12> imm12;
+  bits<5> rs1;
+  bits<5> rd;
+
+  let Inst{31-20} = imm12;
+  let Inst{19-15} = rs1;
+  let Inst{14-12} = funct3;
+  let Inst{11-7} = rd;
+  let Opcode = opcode.Value;
 }

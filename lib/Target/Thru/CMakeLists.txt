@@ -2,44 +2,30 @@ add_llvm_component_group(Thru)
 
 set(LLVM_TARGET_DEFINITIONS Thru.td)
 
-# tablegen(LLVM ThruGenAsmMatcher.inc -gen-asm-matcher)
-# tablegen(LLVM ThruGenAsmWriter.inc -gen-asm-writer)
-# tablegen(LLVM ThruGenCompressInstEmitter.inc -gen-compress-inst-emitter)
-# tablegen(LLVM ThruGenDAGISel.inc -gen-dag-isel)
-# tablegen(LLVM ThruGenDisassemblerTables.inc -gen-disassembler)
-# tablegen(LLVM ThruGenGlobalISel.inc -gen-global-isel)
-tablegen(LLVM ThruGenInstrInfo.inc -gen-instr-info)
-# tablegen(LLVM ThruGenMCCodeEmitter.inc -gen-emitter)
-# tablegen(LLVM ThruGenMCPseudoLowering.inc -gen-pseudo-lowering)
-# tablegen(LLVM ThruGenRegisterBank.inc -gen-register-bank)
 tablegen(LLVM ThruGenRegisterInfo.inc -gen-register-info)
-# tablegen(LLVM ThruGenSearchableTables.inc -gen-searchable-tables)
+tablegen(LLVM ThruGenInstrInfo.inc -gen-instr-info)
+tablegen(LLVM ThruGenCodeEmitter.inc -gen-emitter)
+tablegen(LLVM ThruGenMCCodeEmitter.inc -gen-emitter)
+tablegen(LLVM ThruGenAsmWriter.inc -gen-asm-writer)
+tablegen(LLVM ThruGenDAGISel.inc -gen-dag-isel)
+tablegen(LLVM ThruGenCallingConv.inc -gen-callingconv)
 tablegen(LLVM ThruGenSubtargetInfo.inc -gen-subtarget)
+tablegen(LLVM ThruGenMCPseudoLowering.inc -gen-pseudo-lowering)
 
+
+# ThruCommonTableGen must be defined
 add_public_tablegen_target(ThruCommonTableGen)
 
 add_llvm_target(ThruCodeGen
-  # ThruAsmPrinter.cpp
-  # ThruCallLowering.cpp
-  # ThruExpandAtomicPseudoInsts.cpp
-  # ThruExpandPseudoInsts.cpp
-  # ThruFrameLowering.cpp
-  # ThruGatherScatterLowering.cpp
-  # ThruInsertVSETVLI.cpp
+  ThruAsmPrinter.cpp
+  ThruFrameLowering.cpp
   ThruInstrInfo.cpp
-  # ThruInstructionSelector.cpp
-  # ThruISelDAGToDAG.cpp
-  # ThruISelLowering.cpp
-  # ThruLegalizerInfo.cpp
-  # ThruMCInstLower.cpp
-  # ThruMergeBaseOffset.cpp
-  # ThruRegisterBankInfo.cpp
+  ThruISelLowering.cpp
   ThruRegisterInfo.cpp
-  # ThruSExtWRemoval.cpp
-  # ThruSubtarget.cpp
+  ThruSubtarget.cpp
+  ThruTargetObjectFile.cpp
+  ThruISelDAGToDAG.cpp
   ThruTargetMachine.cpp
-  # ThruTargetObjectFile.cpp
-  # ThruTargetTransformInfo.cpp
 
   LINK_COMPONENTS
   Analysis

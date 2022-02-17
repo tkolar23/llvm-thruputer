@@ -320,6 +320,7 @@ enum {
   EM_BPF = 247,           // Linux kernel bpf virtual machine
   EM_VE = 251,            // NEC SX-Aurora VE
   EM_CSKY = 252,          // C-SKY 32-bit processor
+  EM_THRU = 999
 };
 
 // Object file classes.
@@ -591,6 +592,11 @@ enum {
   ODK_GP_GROUP = 9,   // GP group to use for text/data sections
   ODK_IDENT = 10,     // ID information
   ODK_PAGESIZE = 11   // Page size information
+};
+
+// ELF Relocation types for Thru
+enum {
+#include "ELFRelocs/Thru.def"
 };
 
 // Hexagon-specific e_flags
