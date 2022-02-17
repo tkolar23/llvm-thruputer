@@ -42,7 +42,20 @@ static MCInstrInfo *createThruMCInstrInfo() {
 
 static MCRegisterInfo *createThruMCRegisterInfo(const Triple &TT) {
   MCRegisterInfo *X = new MCRegisterInfo();
+  InitThruMCRegisterInfo(X, Thru::X1);
   return X;
+}
+
+static MCAsmInfo *createThruMCAsmInfo(const MCRegisterInfo &MRI,
+                                       const Triple &TT,
+                                       const MCTargetOptions &Options) {
+  MCAsmInfo *MAI = new ThruMCAsmInfo(TT);
+
+  MCRegister SP = MRI.getDwarfRegNum(Thru::X2, true);
+  MCCFIInstruction Inst = MCCFIInstruction::cfiDefCfa(nullptr, SP, 0);
+  MAI->addInitialFrameState(Inst);
+
+  return MAI;
 }
 
 static MCSubtargetInfo *
@@ -60,32 +73,16 @@ static MCInstPrinter *createThruMCInstPrinter(const Triple &T,
   return new ThruInstPrinter(MAI, MII, MRI);
 }
 
-static MCAsmInfo *createThruMCAsmInfo(const MCRegisterInfo &MRI,
-                                       const Triple &TT,
-                                       const MCTargetOptions &Options) {
-  MCAsmInfo *MAI = new ThruMCAsmInfo(TT);
-
-  MCRegister SP = MRI.getDwarfRegNum(Thru::X2, true);
-  MCCFIInstruction Inst = MCCFIInstruction::cfiDefCfa(nullptr, SP, 0);
-  MAI->addInitialFrameState(Inst);
-
-  return MAI;
-}
-
 extern "C" void LLVMInitializeThruTargetMC() {
   for (Target *T : {&getTheThruTarget()}) {
-    // Register the MC asm info.
-    TargetRegistry::RegisterMCAsmInfo(*T, createThruMCAsmInfo);
-
     // Register the MC instruction info.
     TargetRegistry::RegisterMCInstrInfo(*T, createThruMCInstrInfo);
-
     // Register the MC register info.
     TargetRegistry::RegisterMCRegInfo(*T, createThruMCRegisterInfo);
-
+    // Register the MC asm info.
+    TargetRegistry::RegisterMCAsmInfo(*T, createThruMCAsmInfo);
     // Register the MC subtarget info.
     TargetRegistry::RegisterMCSubtargetInfo(*T, createThruMCSubtargetInfo);
-
     // Register the MCInstPrinter.
     TargetRegistry::RegisterMCInstPrinter(*T, createThruMCInstPrinter);
   }

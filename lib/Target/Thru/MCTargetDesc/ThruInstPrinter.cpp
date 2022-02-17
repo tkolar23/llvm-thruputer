@@ -43,18 +43,25 @@ void ThruInstPrinter::printInst(const MCInst *MI, uint64_t Address,
 
 }
 
-void ThruInstPrinter::printOperand(const MCInst *MI, unsigned OpNo, raw_ostream &O) {
-  const MCOperand &Op = MI->getOperand(OpNo);
-  if (Op.isReg()) {
-    printRegName(O, Op.getReg());
+void ThruInstPrinter::printRegName(raw_ostream &O, unsigned RegNo) const {
+  O << getRegisterName(RegNo);
+}
+
+void ThruInstPrinter::printOperand(const MCInst *MI, unsigned OpNo, 
+                                   raw_ostream &O, const char *Modifier) {
+  assert((Modifier == nullptr || Modifier[0] == 0) && "No modifiers supported");
+  const MCOperand &MO = MI->getOperand(OpNo);
+
+  if (MO.isReg()) {
+    printRegName(O, MO.getReg());
     return;
   }
 
-  if (Op.isImm()) {
-    O << Op.getImm();
-    return;
-  }
+  // if (MO.isImm()) {
+  //   O << MO.getImm();
+  //   return;
+  // }
 
-  assert(Op.isExpr() && "unknown operand kind in printOperand");
-  Op.getExpr()->print(O, &MAI, true);
+  assert(MO.isExpr() && "Unknown operand kind in printOperand");
+  MO.getExpr()->print(O, &MAI);
 }

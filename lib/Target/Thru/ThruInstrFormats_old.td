@@ -73,7 +73,7 @@ class ThruInst<dag outs, dag ins, list<dag> pattern, InstFormat format>
     bits<2>  Ctrl = 0;
     let Inst{23-22} = Ctrl;
 
-    let Namespace = "Thru";
+    let Namespace = "TP";
 
     //defines operands (imms, registers, stack locs, global address, etc.) produced and consumed by instr
     //Used in MI stage for scheduling I think

@@ -19,27 +19,12 @@ using namespace llvm;
 
 void ThruMCAsmInfo::anchor() { }
 
-ThruMCAsmInfo::ThruMCAsmInfo(const Triple &TheTriple) {
-  // This architecture is little endian only
-  IsLittleEndian = false;
-
+ThruMCAsmInfo::ThruMCAsmInfo(const Triple &TargetTriple) {
   AlignmentIsInBytes          = false;
-  Data16bitsDirective         = "\t.hword\t";
-  Data32bitsDirective         = "\t.word\t";
-  Data64bitsDirective         = "\t.dword\t";
-
-  PrivateGlobalPrefix         = ".L";
-  PrivateLabelPrefix          = ".L";
-
-  LabelSuffix                 = ":";
-
-  CommentString               = ";";
-
-  ZeroDirective               = "\t.zero\t";
-
-  UseAssignmentForEHBegin     = true;
-
   SupportsDebugInformation    = true;
   ExceptionsType              = ExceptionHandling::DwarfCFI;
   DwarfRegNumForCFI           = true;
+  Data16bitsDirective         = "\t.hword\t";
+  Data32bitsDirective         = "\t.word\t";
+  Data64bitsDirective         = "\t.dword\t";
 }

@@ -23,7 +23,7 @@ class ThruMCAsmInfo : public MCAsmInfoELF {
   void anchor() override;
 
 public:
-  explicit ThruMCAsmInfo(const Triple &TheTriple);
+  explicit ThruMCAsmInfo(const Triple &TargetTriple);
 };
 
 } // namespace llvm

@@ -10,7 +10,7 @@
 //===----------------------------------------------------------------------===//
 //
 //  These instruction format definitions are structured to match the
-//  description in the RISC-V User-Level ISA specification as closely as
+//  description in the Thru User-Level ISA specification as closely as
 //  possible. For instance, the specification describes instructions with the
 //  MSB (31st bit) on the left and the LSB (0th bit) on the right. This is
 //  reflected in the order of parameters to each instruction class.
@@ -92,7 +92,7 @@ class RWInst<dag outs, dag ins, string opcodestr, string argstr,
 
   let Inst{6-0} = Opcode;
 
-  let Namespace = "Thru";
+  let Namespace = "TP";
 
   dag OutOperandList = outs;
   dag InOperandList = ins;

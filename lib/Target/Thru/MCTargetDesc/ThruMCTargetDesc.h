@@ -36,15 +36,16 @@ MCAsmBackend *createThruAsmBackend(const Target &T, const MCSubtargetInfo &STI,
                                     const MCRegisterInfo &MRI,
                                     const MCTargetOptions &Options);
 
+// Header file MUST have createThruELFObjectWriter (why?)
 std::unique_ptr<MCObjectTargetWriter> createThruELFObjectWriter(uint8_t OSABI,
                                                                  bool Is64Bit);
 }
 
-// Defines symbolic names for RISC-V registers.
+// Defines symbolic names for Thru registers.
 #define GET_REGINFO_ENUM
 #include "ThruGenRegisterInfo.inc"
 
-// Defines symbolic names for RISC-V instructions.
+// Defines symbolic names for Thru instructions.
 #define GET_INSTRINFO_ENUM
 #include "ThruGenInstrInfo.inc"
 
