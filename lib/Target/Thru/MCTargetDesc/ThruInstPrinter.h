@@ -36,6 +36,7 @@ public:
   std::pair<const char *, uint64_t> getMnemonic(const MCInst *MI);
   void printInstruction(const MCInst *MI, uint64_t Address, raw_ostream &O);
   static const char *getRegisterName(unsigned RegNo);
+  static const char *getRegisterName(unsigned RegNo, unsigned AltIdx);
   bool printAliasInstr(const MCInst *MI, uint64_t Address, raw_ostream &OS);
   void printCustomAliasOperand(const MCInst *MI, uint64_t Address, unsigned OpIdx,
                                unsigned PrintMethodIdx,

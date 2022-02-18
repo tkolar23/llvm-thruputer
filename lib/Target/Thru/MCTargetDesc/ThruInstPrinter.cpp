@@ -37,6 +37,8 @@ void ThruInstPrinter::printInst(const MCInst *MI, uint64_t Address,
                                  StringRef Annot, const MCSubtargetInfo &STI,
                                  raw_ostream &O) {
   const MCInst *NewMI = MI;
+  // If this is uncommented, the instructions won't print
+  // if (!PrintAliases || NoAliases)
   printInstruction(NewMI, Address, O);
   printAnnotation(O, Annot);
 }

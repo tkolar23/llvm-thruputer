@@ -56,9 +56,11 @@ static MCInstPrinter *createThruMCInstPrinter(const Triple &T,
                                              const MCAsmInfo &MAI,
                                              const MCInstrInfo &MII,
                                              const MCRegisterInfo &MRI) {
-  // if (SyntaxVariant == 0)
-  return new ThruInstPrinter(MAI, MII, MRI);
-  // return nullptr;
+  if (SyntaxVariant == 0) {
+    return new ThruInstPrinter(MAI, MII, MRI);
+  }
+  
+  return nullptr;
 }
 
 static MCAsmInfo *createThruMCAsmInfo(const MCRegisterInfo &MRI,
