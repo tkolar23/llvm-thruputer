@@ -46,6 +46,21 @@ static MCRegisterInfo *createThruMCRegisterInfo(const Triple &TT) {
   return X;
 }
 
+static MCSubtargetInfo *createThruMCSubtargetInfo(const Triple &TT,
+                                                 StringRef CPU, StringRef FS) {
+  return createThruMCSubtargetInfoImpl(TT, CPU, /*TuneCPU*/ CPU, FS);
+}
+
+static MCInstPrinter *createThruMCInstPrinter(const Triple &T,
+                                             unsigned SyntaxVariant,
+                                             const MCAsmInfo &MAI,
+                                             const MCInstrInfo &MII,
+                                             const MCRegisterInfo &MRI) {
+  // if (SyntaxVariant == 0)
+  return new ThruInstPrinter(MAI, MII, MRI);
+  // return nullptr;
+}
+
 static MCAsmInfo *createThruMCAsmInfo(const MCRegisterInfo &MRI,
                                        const Triple &TT,
                                        const MCTargetOptions &Options) {
@@ -58,32 +73,28 @@ static MCAsmInfo *createThruMCAsmInfo(const MCRegisterInfo &MRI,
   return MAI;
 }
 
-static MCSubtargetInfo *
-createThruMCSubtargetInfo(const Triple &TT, StringRef CPU, StringRef FS) {
-  if (CPU.empty())
-    CPU = "generic";
-  return createThruMCSubtargetInfoImpl(TT, CPU, /*TuneCPU*/ CPU, FS);
-}
-
-static MCInstPrinter *createThruMCInstPrinter(const Triple &T,
-                                               unsigned SyntaxVariant,
-                                               const MCAsmInfo &MAI,
-                                               const MCInstrInfo &MII,
-                                               const MCRegisterInfo &MRI) {
-  return new ThruInstPrinter(MAI, MII, MRI);
+static MCStreamer *createThruMCStreamer(const Triple &T, MCContext &Ctx,
+                                       std::unique_ptr<MCAsmBackend> &&MAB,
+                                       std::unique_ptr<MCObjectWriter> &&OW,
+                                       std::unique_ptr<MCCodeEmitter> &&Emitter,
+                                       bool RelaxAll) {
+  return createELFStreamer(Ctx, std::move(MAB), std::move(OW), std::move(Emitter),
+                           RelaxAll);
 }
 
 extern "C" void LLVMInitializeThruTargetMC() {
   for (Target *T : {&getTheThruTarget()}) {
+    // Register the MC asm info.
+    TargetRegistry::RegisterMCAsmInfo(*T, createThruMCAsmInfo);
     // Register the MC instruction info.
     TargetRegistry::RegisterMCInstrInfo(*T, createThruMCInstrInfo);
     // Register the MC register info.
     TargetRegistry::RegisterMCRegInfo(*T, createThruMCRegisterInfo);
-    // Register the MC asm info.
-    TargetRegistry::RegisterMCAsmInfo(*T, createThruMCAsmInfo);
     // Register the MC subtarget info.
     TargetRegistry::RegisterMCSubtargetInfo(*T, createThruMCSubtargetInfo);
     // Register the MCInstPrinter.
     TargetRegistry::RegisterMCInstPrinter(*T, createThruMCInstPrinter);
+    // Register the object streamer
+    TargetRegistry::RegisterELFStreamer(*T, createThruMCStreamer);
   }
 }

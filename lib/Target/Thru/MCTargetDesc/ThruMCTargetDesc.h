@@ -28,15 +28,17 @@ class MCRegisterInfo;
 class MCSubtargetInfo;
 class Target;
 
+// Unused, not registered
 MCCodeEmitter *createThruMCCodeEmitter(const MCInstrInfo &MCII,
                                         const MCRegisterInfo &MRI,
                                         MCContext &Ctx);
 
+// Unused, not registered
 MCAsmBackend *createThruAsmBackend(const Target &T, const MCSubtargetInfo &STI,
                                     const MCRegisterInfo &MRI,
                                     const MCTargetOptions &Options);
 
-// Header file MUST have createThruELFObjectWriter (why?)
+// Unused, not registered
 std::unique_ptr<MCObjectTargetWriter> createThruELFObjectWriter(uint8_t OSABI,
                                                                  bool Is64Bit);
 }

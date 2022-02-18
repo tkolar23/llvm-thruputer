@@ -29,7 +29,7 @@ using namespace llvm;
 #include "ThruGenAsmWriter.inc"
 
 static cl::opt<bool>
-    NoAliases("Thru-no-aliases",
+    NoAliases("thru-no-aliases",
               cl::desc("Disable the emission of assembler pseudo instructions"),
               cl::init(false), cl::Hidden);
 
@@ -37,14 +37,12 @@ void ThruInstPrinter::printInst(const MCInst *MI, uint64_t Address,
                                  StringRef Annot, const MCSubtargetInfo &STI,
                                  raw_ostream &O) {
   const MCInst *NewMI = MI;
-  if (!PrintAliases || NoAliases)
-    printInstruction(NewMI, Address, O);
+  printInstruction(NewMI, Address, O);
   printAnnotation(O, Annot);
-
 }
 
 void ThruInstPrinter::printRegName(raw_ostream &O, unsigned RegNo) const {
-  O << getRegisterName(RegNo);
+  O << StringRef(getRegisterName(RegNo)).lower();
 }
 
 void ThruInstPrinter::printOperand(const MCInst *MI, unsigned OpNo, 
@@ -57,11 +55,11 @@ void ThruInstPrinter::printOperand(const MCInst *MI, unsigned OpNo,
     return;
   }
 
-  // if (MO.isImm()) {
-  //   O << MO.getImm();
-  //   return;
-  // }
+  if (MO.isImm()) {
+    O << MO.getImm();
+    return;
+  }
 
   assert(MO.isExpr() && "Unknown operand kind in printOperand");
-  MO.getExpr()->print(O, &MAI);
+  MO.getExpr()->print(O, &MAI, true);
 }

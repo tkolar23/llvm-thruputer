@@ -92,7 +92,7 @@ class RWInst<dag outs, dag ins, string opcodestr, string argstr,
 
   let Inst{6-0} = Opcode;
 
-  let Namespace = "TP";
+  let Namespace = "Thru";
 
   dag OutOperandList = outs;
   dag InOperandList = ins;

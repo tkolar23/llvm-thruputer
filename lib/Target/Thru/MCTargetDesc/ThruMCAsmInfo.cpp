@@ -27,4 +27,5 @@ ThruMCAsmInfo::ThruMCAsmInfo(const Triple &TargetTriple) {
   Data16bitsDirective         = "\t.hword\t";
   Data32bitsDirective         = "\t.word\t";
   Data64bitsDirective         = "\t.dword\t";
+  MaxInstLength               = 64;
 }

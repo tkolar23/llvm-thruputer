@@ -11,7 +11,7 @@
 //  Declarations that describe the RISC-W register file
 //===----------------------------------------------------------------------===//
 
-let Namespace = "TP" in {
+let Namespace = "Thru" in {
 class ThruReg<bits<5> Enc, string n, list<string> alt = []> : Register<n> {
   let HWEncoding{4-0} = Enc;
   let AltNames = alt;
