@@ -31,10 +31,16 @@ def ThruInstrInfo : InstrInfo;
 
 def : ProcessorModel<"generic",  NoSchedModel, []>;
 
+def ThruInstPrinter : AsmWriter {
+  string AsmWriterClassName  = "InstPrinter";
+  bit isMCAsmWriter = 1;
+}
+
 //===----------------------------------------------------------------------===//
 // Thru Target declaration
 //===----------------------------------------------------------------------===//
 
 def Thru : Target {
   let InstructionSet = ThruInstrInfo;
+  let AssemblyWriters = [ThruInstPrinter];
 }

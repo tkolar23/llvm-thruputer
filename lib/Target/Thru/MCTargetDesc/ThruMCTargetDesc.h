@@ -28,23 +28,26 @@ class MCRegisterInfo;
 class MCSubtargetInfo;
 class Target;
 
+// Unused, not registered
 MCCodeEmitter *createThruMCCodeEmitter(const MCInstrInfo &MCII,
                                         const MCRegisterInfo &MRI,
                                         MCContext &Ctx);
 
+// Unused, not registered
 MCAsmBackend *createThruAsmBackend(const Target &T, const MCSubtargetInfo &STI,
                                     const MCRegisterInfo &MRI,
                                     const MCTargetOptions &Options);
 
+// Unused, not registered
 std::unique_ptr<MCObjectTargetWriter> createThruELFObjectWriter(uint8_t OSABI,
                                                                  bool Is64Bit);
 }
 
-// Defines symbolic names for RISC-V registers.
+// Defines symbolic names for Thru registers.
 #define GET_REGINFO_ENUM
 #include "ThruGenRegisterInfo.inc"
 
-// Defines symbolic names for RISC-V instructions.
+// Defines symbolic names for Thru instructions.
 #define GET_INSTRINFO_ENUM
 #include "ThruGenInstrInfo.inc"
 

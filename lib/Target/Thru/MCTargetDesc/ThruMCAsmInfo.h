@@ -11,8 +11,8 @@
 //
 //===----------------------------------------------------------------------===//
 
-#ifndef LLVM_LIB_TARGET_THRU_MCTARGETDESC_ThruMCASMINFO_H
-#define LLVM_LIB_TARGET_THRU_MCTARGETDESC_ThruMCASMINFO_H
+#ifndef LLVM_LIB_TARGET_THRU_MCTARGETDESC_THRUMCASMINFO_H
+#define LLVM_LIB_TARGET_THRU_MCTARGETDESC_THRUMCASMINFO_H
 
 #include "llvm/MC/MCAsmInfoELF.h"
 
@@ -23,9 +23,9 @@ class ThruMCAsmInfo : public MCAsmInfoELF {
   void anchor() override;
 
 public:
-  explicit ThruMCAsmInfo(const Triple &TheTriple);
+  explicit ThruMCAsmInfo(const Triple &TargetTriple);
 };
 
 } // namespace llvm
 
-#endif // end LLVM_LIB_TARGET_THRU_MCTARGETDESC_ThruMCASMINFO_H
+#endif // end LLVM_LIB_TARGET_THRU_MCTARGETDESC_THRUMCASMINFO_H

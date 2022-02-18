@@ -12,13 +12,13 @@
 
 class ThruReg<bits<16> Enc, string n> : Register<n> {
   let HWEncoding = Enc;
-  let Namespace = "TP";
+  let Namespace = "Thru";
 }
 
 // ThruPuter CPU Registers
 class ThruGPRReg<bits<16> Enc, string n> : ThruReg<Enc, n>;
 
-let Namespace = "TP" in {
+let Namespace = "Thru" in {
   // General Purpose Registers
   def R0 : ThruGPRReg< 0, "0" >, DwarfRegNum<[0]>;
   def R1 : ThruGPRReg< 1, "1" >, DwarfRegNum<[1]>;

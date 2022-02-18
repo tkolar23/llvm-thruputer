@@ -29,7 +29,7 @@ using namespace llvm;
 #include "ThruGenAsmWriter.inc"
 
 static cl::opt<bool>
-    NoAliases("Thru-no-aliases",
+    NoAliases("thru-no-aliases",
               cl::desc("Disable the emission of assembler pseudo instructions"),
               cl::init(false), cl::Hidden);
 
@@ -37,24 +37,29 @@ void ThruInstPrinter::printInst(const MCInst *MI, uint64_t Address,
                                  StringRef Annot, const MCSubtargetInfo &STI,
                                  raw_ostream &O) {
   const MCInst *NewMI = MI;
-  if (!PrintAliases || NoAliases)
-    printInstruction(NewMI, Address, O);
+  printInstruction(NewMI, Address, O);
   printAnnotation(O, Annot);
-
 }
 
-void ThruInstPrinter::printOperand(const MCInst *MI, unsigned OpNo, raw_ostream &O) {
-  const MCOperand &Op = MI->getOperand(OpNo);
-  if (Op.isReg()) {
-    printRegName(O, Op.getReg());
+void ThruInstPrinter::printRegName(raw_ostream &O, unsigned RegNo) const {
+  O << StringRef(getRegisterName(RegNo)).lower();
+}
+
+void ThruInstPrinter::printOperand(const MCInst *MI, unsigned OpNo, 
+                                   raw_ostream &O, const char *Modifier) {
+  assert((Modifier == nullptr || Modifier[0] == 0) && "No modifiers supported");
+  const MCOperand &MO = MI->getOperand(OpNo);
+
+  if (MO.isReg()) {
+    printRegName(O, MO.getReg());
     return;
   }
 
-  if (Op.isImm()) {
-    O << Op.getImm();
+  if (MO.isImm()) {
+    O << MO.getImm();
     return;
   }
 
-  assert(Op.isExpr() && "unknown operand kind in printOperand");
-  Op.getExpr()->print(O, &MAI, true);
+  assert(MO.isExpr() && "Unknown operand kind in printOperand");
+  MO.getExpr()->print(O, &MAI, true);
 }
