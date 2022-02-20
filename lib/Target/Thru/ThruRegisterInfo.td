@@ -8,7 +8,7 @@
 //===----------------------------------------------------------------------===//
 
 //===----------------------------------------------------------------------===//
-//  Declarations that describe the RISC-W register file
+//  Declarations that describe the Thru register file
 //===----------------------------------------------------------------------===//
 
 let Namespace = "Thru" in {
@@ -18,14 +18,15 @@ class ThruReg<bits<5> Enc, string n, list<string> alt = []> : Register<n> {
 }
 } // end Namespace
 
-def X0  : ThruReg<0, "x0", ["zero"]>, DwarfRegNum<[0]>;
-def X1  : ThruReg<1, "x1", ["ra"]>, DwarfRegNum<[1]>;
-def X2  : ThruReg<2, "x2", ["sp"]>, DwarfRegNum<[2]>;
-def X3  : ThruReg<3, "x3", ["gp"]>, DwarfRegNum<[3]>;
-def X4  : ThruReg<4, "x4", ["tp"]>, DwarfRegNum<[4]>;
-def X5  : ThruReg<5, "x5", ["t0"]>, DwarfRegNum<[5]>;
-def X6  : ThruReg<6, "x6", ["t1"]>, DwarfRegNum<[6]>;
-def X7  : ThruReg<7, "x7", ["t2"]>, DwarfRegNum<[7]>;
+def X0  : ThruReg<0, "x0", []>, DwarfRegNum<[0]>;
+def X1  : ThruReg<1, "x1", []>, DwarfRegNum<[1]>;
+def X2  : ThruReg<2, "x2", []>, DwarfRegNum<[2]>;
+def X3  : ThruReg<3, "x3", []>, DwarfRegNum<[3]>;
+def X4  : ThruReg<4, "x4", []>, DwarfRegNum<[4]>;
+def X5  : ThruReg<5, "x5", []>, DwarfRegNum<[5]>;
+def X6  : ThruReg<6, "x6", []>, DwarfRegNum<[6]>;
+def X7  : ThruReg<7, "x7", []>, DwarfRegNum<[7]>;
+
 def X8  : ThruReg<8, "x8", ["s0", "fp"]>, DwarfRegNum<[8]>;
 def X9  : ThruReg<9, "x9", ["s1"]>, DwarfRegNum<[9]>;
 def X10 : ThruReg<10,"x10", ["a0"]>, DwarfRegNum<[10]>;

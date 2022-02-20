@@ -46,10 +46,20 @@ class ALU_rr<bits<7> funct7, bits<3> funct3, string opcodestr>
     : RWInstR<funct7, funct3, OPC_OP, (outs GPR:$rd), (ins GPR:$rs1, GPR:$rs2),
               opcodestr, "$rd, $rs1, $rs2">;
 
-def ADD  : ALU_rr<0b0000000, 0b000, "add">,
+// def ADD  : ALU_rr<0b0000000, 0b000, "add">,
+//            Sched<[WriteIALU, ReadIALU, ReadIALU]>;
+
+class ALU_rrNew<bits<7> funct7, bits<3> funct3, string opcodestr>
+    : RWInstRNew<funct7, funct3, OPC_OP, (outs GPR:$rd), (ins GPR:$rs1, GPR:$rs2),
+              "$rd", "$rs1", "$rs2", opcodestr>;
+
+def ADD  : ALU_rrNew<0b0000000, 0b000, "+">,
            Sched<[WriteIALU, ReadIALU, ReadIALU]>;
 
-class PatGprGpr<SDPatternOperator OpNode, RWInst Inst>
+// class PatGprGpr<SDPatternOperator OpNode, RWInst Inst>
+//     : Pat<(OpNode GPR:$rs1, GPR:$rs2), (Inst GPR:$rs1, GPR:$rs2)>;
+
+class PatGprGpr<SDPatternOperator OpNode, RWInstNew Inst>
     : Pat<(OpNode GPR:$rs1, GPR:$rs2), (Inst GPR:$rs1, GPR:$rs2)>;
 
 def : PatGprGpr<add, ADD>;

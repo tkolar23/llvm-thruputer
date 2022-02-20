@@ -77,6 +77,31 @@ def OPC_JALR      : ThruOpcode<0b1100111>;
 def OPC_JAL       : ThruOpcode<0b1101111>;
 def OPC_SYSTEM    : ThruOpcode<0b1110011>;
 
+class RWInstNew<dag outs, dag ins, string leftstr, string rs1str, string rs2str, string opcodestr,
+             list<dag> pattern, InstFormat format>
+    : Instruction {
+  field bits<32> Inst;
+  // SoftFail is a field the disassembler can use to provide a way for
+  // instructions to not match without killing the whole decode process. It is
+  // mainly used for ARM, but Tablegen expects this field to exist or it fails
+  // to build the decode table.
+  field bits<32> SoftFail = 0;
+  let Size = 4;
+
+  bits<7> Opcode = 0;
+
+  let Inst{6-0} = Opcode;
+
+  let Namespace = "Thru";
+
+  dag OutOperandList = outs;
+  dag InOperandList = ins;
+  let AsmString = leftstr # " = " # rs1str # opcodestr # rs2str;
+  let Pattern = pattern;
+
+  let TSFlags{4-0} = format.Value;
+}
+
 class RWInst<dag outs, dag ins, string opcodestr, string argstr,
              list<dag> pattern, InstFormat format>
     : Instruction {
@@ -114,6 +139,21 @@ class Pseudo<dag outs, dag ins, list<dag> pattern, string opcodestr = "",
 // Instruction formats are listed in the order they appear in the RISC-V
 // instruction set manual (R, I, S, B, U, J) with sub-formats (e.g. RWInstR4,
 // RWInstRAtomic) sorted alphabetically.
+
+class RWInstRNew<bits<7> funct7, bits<3> funct3, ThruOpcode opcode, dag outs,
+              dag ins, string leftstr, string rs1str, string rs2str, string opcodestr>
+    : RWInstNew<outs, ins, leftstr, rs1str, rs2str, opcodestr, [], InstFormatR> {
+  bits<5> rs2;
+  bits<5> rs1;
+  bits<5> rd;
+
+  let Inst{31-25} = funct7;
+  let Inst{24-20} = rs2;
+  let Inst{19-15} = rs1;
+  let Inst{14-12} = funct3;
+  let Inst{11-7} = rd;
+  let Opcode = opcode.Value;
+}
 
 class RWInstR<bits<7> funct7, bits<3> funct3, ThruOpcode opcode, dag outs,
               dag ins, string opcodestr, string argstr>
