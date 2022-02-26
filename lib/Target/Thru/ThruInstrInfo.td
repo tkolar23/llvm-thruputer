@@ -1,4 +1,4 @@
-//== ThruInstrInfo.td - Target Description for Thru Target -*- tablegen -*-=//
+//== ThruDirAInfo.td - Target Description for Thru Target -*- tablegen -*-=//
 //
 //                     The LLVM Compiler Infrastructure
 //
@@ -41,36 +41,33 @@ def ADJCALLSTACKUP   : Pseudo<(outs), (ins i32imm:$amt1, i32imm:$amt2),
 } // end Defs = [X2], Uses = [X2]
 
 /* Arithmetic and logic */
+// let hasSideEffects = 0, mayLoad = 0, mayStore = 0 in
+// class ALU_rr<bits<7> funct7, bits<3> funct3, string opcodestr>
+//     : ThruDirA<funct7, funct3, OPC_OP, (outs GPR:$rd), (ins GPR:$rs1, GPR:$rs2),
+//               opcodestr, "$rd, $rs1, $rs2">;
+
 let hasSideEffects = 0, mayLoad = 0, mayStore = 0 in
-class ALU_rr<bits<7> funct7, bits<3> funct3, string opcodestr>
-    : RWInstR<funct7, funct3, OPC_OP, (outs GPR:$rd), (ins GPR:$rs1, GPR:$rs2),
-              opcodestr, "$rd, $rs1, $rs2">;
+def ADD  : ThruDirA<(outs GPR:$yo), (ins GPR:$yl, GPR:$yr), 0b0000>,
+           Sched<[WriteIALU, ReadIALU, ReadIALU]>
+{
+    let AsmString = "$yo = $yl + $yr";
+}
 
-// def ADD  : ALU_rr<0b0000000, 0b000, "add">,
-//            Sched<[WriteIALU, ReadIALU, ReadIALU]>;
-
-class ALU_rrNew<bits<7> funct7, bits<3> funct3, string opcodestr>
-    : RWInstRNew<funct7, funct3, OPC_OP, (outs GPR:$rd), (ins GPR:$rs1, GPR:$rs2),
-              "$rd", "$rs1", "$rs2", opcodestr>;
-
-def ADD  : ALU_rrNew<0b0000000, 0b000, "+">,
-           Sched<[WriteIALU, ReadIALU, ReadIALU]>;
-
-// class PatGprGpr<SDPatternOperator OpNode, RWInst Inst>
-//     : Pat<(OpNode GPR:$rs1, GPR:$rs2), (Inst GPR:$rs1, GPR:$rs2)>;
-
-class PatGprGpr<SDPatternOperator OpNode, RWInstNew Inst>
-    : Pat<(OpNode GPR:$rs1, GPR:$rs2), (Inst GPR:$rs1, GPR:$rs2)>;
+class PatGprGpr<SDPatternOperator OpNode, ThruDir Dir>
+    : Pat<(OpNode GPR:$rs1, GPR:$rs2), (Dir GPR:$rs1, GPR:$rs2)>;
 
 def : PatGprGpr<add, ADD>;
 
 /* Procedure calling instructions */
 let hasSideEffects = 0, mayLoad = 0, mayStore = 0 in {
 let isCall = 1 in
-def JALR : RWInstI<0b000, OPC_JALR, (outs GPR:$rd),
+def JALR : ThruDirI<0b000, OPC_JALR, (outs GPR:$rd),
                    (ins GPR:$rs1, i32imm:$imm12),
                    "jalr", "$rd, ${imm12}(${rs1})">,
-           Sched<[WriteJalr, ReadJalr]>;
+           Sched<[WriteJalr, ReadJalr]>
+           {
+               let AsmString = "jalr $rd, ${imm12}(${rs1})";
+           }
 }
 
 let isReturn = 1, isBarrier = 1, isTerminator = 1 in

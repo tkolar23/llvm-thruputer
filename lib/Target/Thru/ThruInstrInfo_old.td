@@ -1,35 +1,80 @@
+//== ThruInstrInfo.td - Target Description for Thru Target -*- tablegen -*-=//
+//
+//                     The LLVM Compiler Infrastructure
+//
+// This file is distributed under the University of Illinois Open Source
+// License. See LICENSE.TXT for details.
+//
 //===----------------------------------------------------------------------===//
-// Instruction Formats
+//
+// This file contains the Thru implementation of the TargetInstrInfo class.
+//
 //===----------------------------------------------------------------------===//
+
+//===----------------------------------------------------------------------===//
+// Instruction format superclass
+//===----------------------------------------------------------------------===//
+
+// Procedure return
+def thru_ret : SDNode<"ThruISD::Ret", SDTNone,
+                       [SDNPHasChain, SDNPOptInGlue, SDNPVariadic]>;
+
+// Procedure calling
+def SDT_CallSeqStart : SDCallSeqStart<[SDTCisVT<0, i32>,
+                                       SDTCisVT<1, i32>]>;
+def SDT_CallSeqEnd   : SDCallSeqEnd<[SDTCisVT<0, i32>,
+                                    SDTCisVT<1, i32>]>;
+
+// These are target-independent nodes, but have target-specific formats.
+def callseq_start : SDNode<"ISD::CALLSEQ_START", SDT_CallSeqStart,
+                           [SDNPHasChain, SDNPOutGlue]>;
+def callseq_end   : SDNode<"ISD::CALLSEQ_END", SDT_CallSeqEnd,
+                           [SDNPHasChain, SDNPOptInGlue, SDNPOutGlue]>;
 
 include "ThruInstrFormats.td"
-// include "ThruRegisterInfo.td"
 
-//===----------------------------------------------------------------------===//
-// Instruction Class Templates
-//===----------------------------------------------------------------------===//
+let Defs = [X2], Uses = [X2] in {
+def ADJCALLSTACKDOWN : Pseudo<(outs), (ins i32imm:$amt1, i32imm:$amt2),
+                              [(callseq_start timm:$amt1, timm:$amt2)]>;
+def ADJCALLSTACKUP   : Pseudo<(outs), (ins i32imm:$amt1, i32imm:$amt2),
+                              [(callseq_end timm:$amt1, timm:$amt2)]>;
+} // end Defs = [X2], Uses = [X2]
 
+/* Arithmetic and logic */
 let hasSideEffects = 0, mayLoad = 0, mayStore = 0 in
-class X_acc<SimpleOD SOD> : ThruInst0_2<BOD_ADD, SOD, (outs IntRegs:$xo), (ins IntRegs:$srcA, IntRegs:$xr)>;
+class ALU_rr<bits<7> funct7, bits<3> funct3, string opcodestr>
+    : RWInstR<funct7, funct3, OPC_OP, (outs GPR:$rd), (ins GPR:$rs1, GPR:$rs2),
+              opcodestr, "$rd, $rs1, $rs2">;
 
-//===----------------------------------------------------------------------===//
-// Instructions
-//===----------------------------------------------------------------------===//
+// def ADD  : ALU_rr<0b0000000, 0b000, "add">,
+//            Sched<[WriteIALU, ReadIALU, ReadIALU]>;
 
-//Instructions that use simple accumulator 
-//for now will use "format 3" - utilize only DirX and use SrcA as xl
-def ADD : X_acc<SOD_ADD>;
-def SUB : X_acc<SOD_SUB>;
-def SHL : X_acc<SOD_SHL>;
-def SHR : X_acc<SOD_SHR>;
-def AND : X_acc<SOD_AND>;
-def OR  : X_acc<SOD_OR>;
-def XOR : X_acc<SOD_XOR>;
+class ALU_rrNew<bits<7> funct7, bits<3> funct3, string opcodestr>
+    : RWInstRNew<funct7, funct3, OPC_OP, (outs GPR:$rd), (ins GPR:$rs1, GPR:$rs2),
+              "$rd", "$rs1", "$rs2", opcodestr>;
 
-//Move instruction
-//only register-register move (no immediates/literals)
-let isMoveReg = 1, hasSideEffects = 0, mayLoad = 0, mayStore = 0 in
-def MOV : ThruInst0_2<BOD_ADD, SOD_ADD, (outs IntRegs:$MDt), (ins IntRegs:$MDs)>;
+def ADD  : ALU_rrNew<0b0000000, 0b000, "+">,
+           Sched<[WriteIALU, ReadIALU, ReadIALU]>;
 
-//Load and Store instructions
-//remember ld will put result in ld register and str will place contents of str register in instance memory
+// class PatGprGpr<SDPatternOperator OpNode, RWInst Inst>
+//     : Pat<(OpNode GPR:$rs1, GPR:$rs2), (Inst GPR:$rs1, GPR:$rs2)>;
+
+class PatGprGpr<SDPatternOperator OpNode, RWInstNew Inst>
+    : Pat<(OpNode GPR:$rs1, GPR:$rs2), (Inst GPR:$rs1, GPR:$rs2)>;
+
+def : PatGprGpr<add, ADD>;
+
+/* Procedure calling instructions */
+let hasSideEffects = 0, mayLoad = 0, mayStore = 0 in {
+let isCall = 1 in
+def JALR : RWInstI<0b000, OPC_JALR, (outs GPR:$rd),
+                   (ins GPR:$rs1, i32imm:$imm12),
+                   "jalr", "$rd, ${imm12}(${rs1})">,
+           Sched<[WriteJalr, ReadJalr]>;
+}
+
+let isReturn = 1, isBarrier = 1, isTerminator = 1 in
+def PseudoRET : Pseudo<(outs), (ins), [(thru_ret)]>,
+                PseudoInstExpansion<(JALR X0, X1, 0)>;
+
+def : InstAlias<"ret",                   (JALR      X0,      X1, 0), 4>;
