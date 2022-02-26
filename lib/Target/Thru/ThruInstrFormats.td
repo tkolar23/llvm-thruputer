@@ -41,41 +41,18 @@ class ThruDir<dag outs, dag ins, list<dag> pattern, DirFormat format>
   let TSFlags{4-0} = format.Value;
 }
 
-// 8-bit opcode
-// binary 0-15
-// unary 6-31
-// move 32
-// 64-bit imm src or reg
-// 4-bit reg source
-// 4-bit target
-
 // Pseudo instructions
-class Pseudo<dag outs, dag ins, list<dag> pattern, string opcodestr = "",
-             string argstr = "">
+class Pseudo<dag outs, dag ins, list<dag> pattern>
     : ThruDir<outs, ins, pattern, DirFormatPseudo>,
       Sched<[]> {
   let isPseudo = 1;
   let isCodeGenOnly = 1;
 }
 
-class ThruDirA<dag outs, dag ins, bits<4> opdir>
+class ThruDirA<dag outs, dag ins>
     : ThruDir<outs, ins, [], DirFormatA> {
-  bits<4> yl;
-  bits<4> yr;
-  bits<4> yo;
-  bits<4> BinaryOD = opdir;
 }
 
-class ThruDirI<bits<3> funct3, ThruOpcode opcode, dag outs, dag ins,
-              string opcodestr, string argstr>
+class ThruDirI<dag outs, dag ins>
     : ThruDir<outs, ins, [], DirFormatI> {
-  bits<12> imm12;
-  bits<5> rs1;
-  bits<5> rd;
-
-  let Inst{31-20} = imm12;
-  let Inst{19-15} = rs1;
-  let Inst{14-12} = funct3;
-  let Inst{11-7} = rd;
-  // let Opcode = opcode.Value;
 }
