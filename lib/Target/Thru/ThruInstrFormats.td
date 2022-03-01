@@ -15,7 +15,7 @@ class DirFormat<bits<5> val> {
 }
 def DirFormatPseudo : DirFormat<0>;
 def DirFormatA      : DirFormat<1>;
-def DirFormatI      : DirFormat<2>;
+def DirFormatFC      : DirFormat<2>;
 
 // The following opcode names match those given in Table 19.1 in the
 // RISC-V User-level ISA specification ("RISC-V base opcode map").
@@ -49,10 +49,6 @@ class Pseudo<dag outs, dag ins, list<dag> pattern>
   let isCodeGenOnly = 1;
 }
 
-class ThruDirA<dag outs, dag ins>
-    : ThruDir<outs, ins, [], DirFormatA> {
-}
+class ThruDirA<dag outs, dag ins> : ThruDir<outs, ins, [], DirFormatA>;
 
-class ThruDirI<dag outs, dag ins>
-    : ThruDir<outs, ins, [], DirFormatI> {
-}
+class ThruDirFC<dag outs, dag ins> : ThruDir<outs, ins, [], DirFormatFC>;
