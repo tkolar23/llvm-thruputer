@@ -12,97 +12,97 @@
 //===----------------------------------------------------------------------===//
 
 //===----------------------------------------------------------------------===//
-// Instruction format superclass
+// ThruPuter specific DAG Nodes.
 //===----------------------------------------------------------------------===//
 
-// Procedure return
-def thru_ret : SDNode<"ThruISD::Ret", SDTNone, [SDNPHasChain, SDNPOptInGlue, SDNPVariadic]>;
-
-// Procedure calling
+// Target-independent type requirements, but with target-specific formats.
 def SDT_CallSeqStart : SDCallSeqStart<[SDTCisVT<0, i32>, SDTCisVT<1, i32>]>;
 def SDT_CallSeqEnd   : SDCallSeqEnd<[SDTCisVT<0, i32>, SDTCisVT<1, i32>]>;
 
-// These are target-independent nodes, but have target-specific formats.
+// Target-dependent type requirements.
+
+
+// Target-independent nodes, but with target-specific formats.
 def callseq_start : SDNode<"ISD::CALLSEQ_START", SDT_CallSeqStart, [SDNPHasChain, SDNPOutGlue]>;
 def callseq_end   : SDNode<"ISD::CALLSEQ_END", SDT_CallSeqEnd, [SDNPHasChain, SDNPOptInGlue, SDNPOutGlue]>;
 
+// Target-dependent nodes.
+def thru_ret : SDNode<"ThruISD::Ret", SDTNone, [SDNPHasChain, SDNPOptInGlue, SDNPVariadic]>;
+
+//===----------------------------------------------------------------------===//
+// Operand and SDNode transformation definitions.
+//===----------------------------------------------------------------------===//
+
+
+//===----------------------------------------------------------------------===//
+// Directive Formats
+//===----------------------------------------------------------------------===//
+
 include "ThruInstrFormats.td"
 
-let Defs = [X2], Uses = [X2] in {
-def ADJCALLSTACKDOWN : Pseudo<(outs), (ins i32imm:$amt1, i32imm:$amt2), [(callseq_start timm:$amt1, timm:$amt2)]>;
-def ADJCALLSTACKUP   : Pseudo<(outs), (ins i32imm:$amt1, i32imm:$amt2), [(callseq_end timm:$amt1, timm:$amt2)]>;
-} // end Defs = [X2], Uses = [X2]
+//===----------------------------------------------------------------------===//
+// Directive Class Templates
+//===----------------------------------------------------------------------===//
 
-/* Arithmetic and logic */
+multiclass Acc <string opdirstr, bits<4> bodVal, SDNode OpNode> {
+    def rr : ThruDirA_0<(outs GPR:$yo), (ins GPR:$yl, GPR:$yr), 
+                         opdirstr, "$yo, $yl, $yr", bodVal,
+                         [(set i32:$yo, (OpNode i32:$yl, i32:$yr))]>;
 
-// Register inputs
-class Acc_rr <dag outs, dag ins> : ThruDirA <outs, ins>;
+    def rl : ThruDirA_1<(outs GPR:$yo), (ins i32imm:$lit, GPR:$yr),
+                         opdirstr, "$yo, $lit, $yr", bodVal,
+                         [(set i32:$yo, (OpNode imm:$lit, i32:$yr))]>;
 
-let hasSideEffects = 0, mayLoad = 0, mayStore = 0 in
-{
-// TODO: 
-// Cast, Reinterpret, Shift Left, Shift Right,
-// Shift Left Fill, Shift Right Extend, Pack
-def ADD :   Acc_rr<(outs GPR:$yo), (ins GPR:$yl, GPR:$yr)>,
-            Sched<[WriteIALU, ReadIALU, ReadIALU]>
-            { let AsmString = "$yo\t=\t$yl + $yr"; }
-def SUB :   Acc_rr<(outs GPR:$yo), (ins GPR:$yl, GPR:$yr)>,
-            Sched<[WriteIALU, ReadIALU, ReadIALU]>
-            { let AsmString = "$yo\t=\t$yl - $yr"; }
-def MUL :   Acc_rr<(outs GPR:$yo), (ins GPR:$yl, GPR:$yr)>,
-            Sched<[WriteIALU, ReadIALU, ReadIALU]>
-            { let AsmString = "$yo\t=\t$yl * $yr"; }
-def DIV :   Acc_rr<(outs GPR:$yo), (ins GPR:$yl, GPR:$yr)>,
-            Sched<[WriteIALU, ReadIALU, ReadIALU]>
-            { let AsmString = "$yo\t=\t$yl / $yr"; }
-def MIN :   Acc_rr<(outs GPR:$yo), (ins GPR:$yl, GPR:$yr)>,
-            Sched<[WriteIALU, ReadIALU, ReadIALU]>
-            { let AsmString = "$yo\t=\tmin($yl, $yr)"; }
-def MAX :   Acc_rr<(outs GPR:$yo), (ins GPR:$yl, GPR:$yr)>,
-            Sched<[WriteIALU, ReadIALU, ReadIALU]>
-            { let AsmString = "$yo\t=\tmax($yl, $yr)"; }
-def AND :   Acc_rr<(outs GPR:$yo), (ins GPR:$yl, GPR:$yr)>,
-            Sched<[WriteIALU, ReadIALU, ReadIALU]>
-            { let AsmString = "$yo\t=\t$yl & $yr"; }
-def OR :   Acc_rr<(outs GPR:$yo), (ins GPR:$yl, GPR:$yr)>,
-            Sched<[WriteIALU, ReadIALU, ReadIALU]>
-            { let AsmString = "$yo\t=\t$yl | $yr"; }
-def XOR :   Acc_rr<(outs GPR:$yo), (ins GPR:$yl, GPR:$yr)>,
-            Sched<[WriteIALU, ReadIALU, ReadIALU]>
-            { let AsmString = "$yo\t=\t$yl ^ $yr"; }
+    /*
+    def lr : ThruDirA_2<(outs GPR:$yo), (ins GPR:$yl, i32imm:$lit),
+                         opdirstr, "$yo, $yl, $lit", bodVal,
+                         [(set i32:$yo, (OpNode i32:$yl, imm:$lit))]>;
+
+    def ll : ThruDirA_3<(outs GPR:$yo), (ins i32imm:$lit1, i32imm:$lit0),
+                         opdirstr, "$yo, $lit1, $lit0", bodVal,
+                         [(set i32:$yo, (OpNode imm:$lit1, imm:$lit0))]>;
+    */
 }
 
+// Flow-Control Directive
+let hasSideEffects = 0, mayLoad = 0, mayStore = 0 in {
+let isCall = 1 in
+def FCD : ThruDirFC<(outs), (ins i32imm:$cond, i32imm:$targ), "", "">, Sched<[WriteJalr, ReadJalr]>
+    {
+        let AsmString = "FCD\t$cond, $targ";
+    }
+}
+
+//===----------------------------------------------------------------------===//
+// Directives
+//===----------------------------------------------------------------------===//
+
+// Arithmetic Directives
+defm ADD : Acc<"add", 0b0000, add>, Sched<[WriteIALU, ReadIALU, ReadIALU]>;
+
+//===----------------------------------------------------------------------===//
+// Pseudo-Directives and codegen patterns
+//
+// Naming convention: For 'generic' pattern classes, we use the naming
+// convention PatTy1Ty2. For pattern classes which offer a more complex
+// expansion, prefix the class name, e.g. BccPat.
+//===----------------------------------------------------------------------===//
 
 class PatGprGpr<SDPatternOperator OpNode, ThruDir Dir>
     : Pat<(OpNode GPR:$rs1, GPR:$rs2), (Dir GPR:$rs1, GPR:$rs2)>;
 
 // include/llvm/Target/TargetSelectionDAG.td
-def : PatGprGpr<add, ADD>;
-def : PatGprGpr<sub, SUB>;
-def : PatGprGpr<mul, MUL>;
-def : PatGprGpr<sdiv, DIV>;
-def : PatGprGpr<smin, MIN>;
-def : PatGprGpr<smax, MAX>;
-// Cast
-// Reinterpret
-// Shift Left
-// Shift Right
-// Shift Left Fill
-// Shift Right Extend
-def : PatGprGpr<and, AND>;
-def : PatGprGpr<or, OR>;
-def : PatGprGpr<xor, XOR>;
-// Pack
+// def : PatGprGpr<add, ADDrr>;
+// def : PatGprGpr<add, ADDlr>;
+// def : PatGprGpr<add, ADDrl>;
+// def : PatGprGpr<add, ADDll>;
 
 
-/* Procedure calling instructions */
-let hasSideEffects = 0, mayLoad = 0, mayStore = 0 in {
-let isCall = 1 in
-def FCD : ThruDirFC<(outs), (ins i32imm:$cond, i32imm:$targ)>, Sched<[WriteJalr, ReadJalr]>
-    {
-        let AsmString = "FCD\t$cond, $targ";
-    }
-}
+let Defs = [X20], Uses = [X20] in {
+def ADJCALLSTACKDOWN : Pseudo<(outs), (ins i32imm:$amt1, i32imm:$amt2), [(callseq_start timm:$amt1, timm:$amt2)]>;
+def ADJCALLSTACKUP   : Pseudo<(outs), (ins i32imm:$amt1, i32imm:$amt2), [(callseq_end timm:$amt1, timm:$amt2)]>;
+} // end Defs = [X20], Uses = [X20]
+
 
 let isReturn = 1, isBarrier = 1, isTerminator = 1 in
 def PseudoRET : Pseudo<(outs), (ins), [(thru_ret)]>, PseudoInstExpansion<(FCD   0x000, 0b11100010001)>;
