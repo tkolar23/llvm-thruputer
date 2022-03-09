@@ -15,15 +15,29 @@ class DirFormat<bits<5> val> {
 }
 def DirFormatPseudo : DirFormat<0>;
 def DirFormatA      : DirFormat<1>;
-def DirFormatFC      : DirFormat<2>;
+def DirFormatFC     : DirFormat<2>;
 
-// The following opcode names match those given in Table 19.1 in the
-// RISC-V User-level ISA specification ("RISC-V base opcode map").
-class ThruOpcode<bits<7> val> {
-  bits<7> Value = val;
+//Binary Operational Directives (BOD)
+class BinaryOD<bits<4> val> {
+    bits<4> value = val;
 }
-def OPC_OP        : ThruOpcode<0b0110011>;
-def OPC_JALR      : ThruOpcode<0b1100111>;
+
+def BOD_ADD   : BinaryOD<0>; //add
+def BOD_SUB   : BinaryOD<1>; //subtract
+def BOD_MUL   : BinaryOD<2>; //multiply
+def BOD_DIV   : BinaryOD<3>; //divide
+def BOD_MIN   : BinaryOD<4>; //minimum
+def BOD_MAX   : BinaryOD<5>; //maxmimum
+def BOD_CAST  : BinaryOD<6>; //cast
+def BOD_REIN  : BinaryOD<7>; //reinterpret
+def BOD_SHL   : BinaryOD<8>; //shift left
+def BOD_SHR   : BinaryOD<9>; //shift right
+def BOD_SHLF  : BinaryOD<10>; //shift left with fill
+def BOD_SHRE  : BinaryOD<11>; //shift right with extend
+def BOD_AND   : BinaryOD<12>; //and
+def BOD_OR    : BinaryOD<13>; //or
+def BOD_XOR   : BinaryOD<14>; //xor
+def BOD_PACK  : BinaryOD<15>; //pack 
 
 class ThruDir<dag outs, dag ins, string opdirstr, string argstr,
               list<dag> pattern, DirFormat format>
@@ -56,7 +70,7 @@ class Pseudo<dag outs, dag ins, list<dag> pattern>
 }
 
 class ThruDirA<dag outs, dag ins, string opdirstr, string argstr,
-               bits<4> bodVal, list<dag> pattern>
+               BinaryOD bodval, list<dag> pattern>
   : ThruDir<outs, ins, opdirstr, argstr, pattern, DirFormatA>
 {
   bits<4> yl;
@@ -64,7 +78,7 @@ class ThruDirA<dag outs, dag ins, string opdirstr, string argstr,
   bits<3> yo;
   bits<4> bod;
 
-  let bod = bodVal;
+  let bod = bodval.value;
 
   let Inst{31-28} = yl;
   let Inst{14-12} = yr;
@@ -73,35 +87,35 @@ class ThruDirA<dag outs, dag ins, string opdirstr, string argstr,
 }
 
 class ThruDirA_0<dag outs, dag ins, string opdirstr, string argstr,
-                 bits<4> bodVal, list<dag> pattern>
-  : ThruDirA<outs, ins, opdirstr, argstr, bodVal, pattern>;
+                 BinaryOD bodval, list<dag> pattern>
+  : ThruDirA<outs, ins, opdirstr, argstr, bodval, pattern>;
 
 // Right-side LV
 class ThruDirA_1<dag outs, dag ins, string opdirstr, string argstr,
-                 bits<4> bodVal, list<dag> pattern>
-  : ThruDirA<outs, ins, opdirstr, argstr, bodVal, pattern>
+                 BinaryOD bodval, list<dag> pattern>
+  : ThruDirA<outs, ins, opdirstr, argstr, bodval, pattern>
 {
-  bits<32> lit;
+  bits<64> lit;
   let yr = 0b111;
 }
 
 /*
 // Left-side LV
 class ThruDirA_2<dag outs, dag ins, string opdirstr, string argstr,
-                 bits<4> bodVal, list<dag> pattern>
-  : ThruDirA<outs, ins, opdirstr, argstr, bodVal, pattern>
+                 BinaryOD bodval, list<dag> pattern>
+  : ThruDirA<outs, ins, opdirstr, argstr, bodval, pattern>
 {
-  bits<32> lit;
+  bits<64> lit;
   let yl = 0b1111;
 }
 
 // Right-side LV, Left-side LV
 class ThruDirA_3<dag outs, dag ins, string opdirstr, string argstr,
-                 bits<4> bodVal, list<dag> pattern>
-  : ThruDirA<outs, ins, opdirstr, argstr, bodVal, pattern>
+                 BinaryOD bodval, list<dag> pattern>
+  : ThruDirA<outs, ins, opdirstr, argstr, bodval, pattern>
 {
-  bits<32> lit0;
-  bits<32> lit1;
+  bits<64> lit0;
+  bits<64> lit1;
   let yr = 0b111;
   let yl = 0b1111;
 }

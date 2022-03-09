@@ -77,7 +77,7 @@ def X31 : ThruReg<31,"x31", [""]>, DwarfRegNum<[31]>;
 */
 
 // The order of registers represents the preferred allocation sequence.
-def GPR : RegisterClass<"Thru", [i32], 32, (add(sequence "X%u", 0, 7))>;
+def GPR : RegisterClass<"Thru", [i64], 64, (add(sequence "X%u", 0, 7))>;
 def IP  : RegisterClass<"Thru", [i32], 32, (add(sequence "X%u", 8, 11))>;
 def OP  : RegisterClass<"Thru", [i32], 32, (add(sequence "X%u", 12, 15))>;
 def IQ  : RegisterClass<"Thru", [i32], 32, (add X16)>;

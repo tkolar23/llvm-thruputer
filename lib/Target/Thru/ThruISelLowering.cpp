@@ -38,7 +38,7 @@ ThruTargetLowering::ThruTargetLowering(const TargetMachine &TM,
     : TargetLowering(TM), Subtarget(STI)
 {
   // Set up the register classes
-  addRegisterClass(MVT::i32, &Thru::GPRRegClass);
+  addRegisterClass(MVT::i64, &Thru::GPRRegClass);
 
   // Must, computeRegisterProperties - Once all of the register classes are
   // added, this allows us to compute derived properties we expose.
@@ -61,9 +61,9 @@ ThruTargetLowering::ThruTargetLowering(const TargetMachine &TM,
   setBooleanContents(ZeroOrOneBooleanContent);
   setBooleanVectorContents(ZeroOrOneBooleanContent);
 
-  setOperationAction(ISD::GlobalAddress, MVT::i32, Custom);
-  setOperationAction(ISD::BlockAddress,  MVT::i32, Custom);
-  setOperationAction(ISD::ConstantPool,  MVT::i32, Custom);
+  setOperationAction(ISD::GlobalAddress, MVT::i64, Custom);
+  setOperationAction(ISD::BlockAddress,  MVT::i64, Custom);
+  setOperationAction(ISD::ConstantPool,  MVT::i64, Custom);
 
   // Set minimum and preferred function alignment (log2)
   setMinFunctionAlignment(Align(1));
@@ -116,8 +116,7 @@ SDValue ThruTargetLowering::LowerFormalArguments(
 
   // Assign locations to all of the incoming arguments.
   SmallVector<CCValAssign, 16> ArgLocs;
-  CCState CCInfo(CallConv, isVarArg, DAG.getMachineFunction(), ArgLocs,
-                 *DAG.getContext());
+  CCState CCInfo(CallConv, isVarArg, DAG.getMachineFunction(), ArgLocs, *DAG.getContext());
   CCInfo.AnalyzeFormalArguments(Ins, Thru_CCallingConv);
 
   SmallVector<SDValue, 16> ArgValues;
@@ -174,7 +173,7 @@ SDValue ThruTargetLowering::LowerFormalArguments(
       } else {
         const TargetRegisterClass *RC;
 
-        if (RegVT == MVT::i32)
+        if (RegVT == MVT::i64)
           RC = &Thru::GPRRegClass;
         else
           llvm_unreachable("RegVT not supported by FORMAL_ARGUMENTS Lowering");
@@ -270,7 +269,7 @@ ThruTargetLowering::LowerCallResult(SDValue Chain, SDValue InFlag,
     // Pass 'this' value directly from the argument to return value, to avoid
     // reg unit interference
     if (i == 0 && isThisReturn) {
-      assert(!VA.needsCustom() && VA.getLocVT() == MVT::i32 &&
+      assert(!VA.needsCustom() && VA.getLocVT() == MVT::i64 &&
              "unexpected return calling convention register assignment");
       InVals.push_back(ThisVal);
       continue;

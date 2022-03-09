@@ -63,6 +63,8 @@ void ThruAsmPrinter::EmitToStreamer(MCStreamer &S, const MCInst &Inst) {
   AsmPrinter::EmitToStreamer(*OutStreamer, Inst);
 }
 
+// MI instructions will be dispatched one at a time to this function
+// Transforms MI instruction into an MCInst instance (MCInstLowering interface)
 void ThruAsmPrinter::emitInstruction(const MachineInstr *MI) {
   // Do any auto-generated pseudo lowerings.
   if (emitPseudoExpansionLowering(*OutStreamer, MI))
@@ -73,8 +75,7 @@ void ThruAsmPrinter::emitInstruction(const MachineInstr *MI) {
   EmitToStreamer(*OutStreamer, TmpInst);
 }
 
-void ThruAsmPrinter::LowerInstruction(const MachineInstr *MI,
-                                       MCInst &OutMI) const {
+void ThruAsmPrinter::LowerInstruction(const MachineInstr *MI, MCInst &OutMI) const {
   OutMI.setOpcode(MI->getOpcode());
 
   for (const MachineOperand &MO : MI->operands()) {
