@@ -99,7 +99,7 @@ class ThruDirA_1<dag outs, dag ins, string opdirstr, string argstr,
   let yr = 0b111;
 }
 
-/*
+
 // Left-side LV
 class ThruDirA_2<dag outs, dag ins, string opdirstr, string argstr,
                  BinaryOD bodval, list<dag> pattern>
@@ -119,7 +119,6 @@ class ThruDirA_3<dag outs, dag ins, string opdirstr, string argstr,
   let yr = 0b111;
   let yl = 0b1111;
 }
-*/
 
 class ThruDirFC<dag outs, dag ins, string opdirstr, string argstr>
   : ThruDir<outs, ins, opdirstr, argstr, [], DirFormatFC>;
