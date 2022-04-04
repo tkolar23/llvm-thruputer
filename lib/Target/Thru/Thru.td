@@ -29,7 +29,7 @@ def ThruInstrInfo : InstrInfo;
 // Thru processors supported
 //===----------------------------------------------------------------------===//
 
-def : ProcessorModel<"generic",  NoSchedModel, []>;
+def : ProcessorModel<"generic",  ThruModel, []>;
 
 def ThruInstPrinter : AsmWriter {
   string AsmWriterClassName  = "InstPrinter";

@@ -8,7 +8,7 @@
 //===----------------------------------------------------------------------===//
 //
 // This file contains a printer that converts from our internal representation
-// of machine-dependent LLVM code to GAS-format CPU0 assembly language.
+// of machine-dependent LLVM code to ThruPuter assembly language.
 //
 //===----------------------------------------------------------------------===//
 
@@ -64,24 +64,38 @@ void ThruAsmPrinter::EmitToStreamer(MCStreamer &S, const MCInst &Inst) {
 }
 
 void ThruAsmPrinter::emitInstruction(const MachineInstr *MI) {
-  // Do any auto-generated pseudo lowerings.
-  if (emitPseudoExpansionLowering(*OutStreamer, MI))
+    // Do any auto-generated pseudo lowerings.
+    if (emitPseudoExpansionLowering(*OutStreamer, MI))
     return;
 
-  MCInst TmpInst;
-  LowerInstruction(MI, TmpInst);
-  EmitToStreamer(*OutStreamer, TmpInst);
+    MCInst MCB;
+    MCB.setOpcode(Thru::BUNDLE);
+    MCB.addOperand(MCOperand::createImm(0));
+
+    const MachineBasicBlock* MBB = MI->getParent();
+    MachineBasicBlock::const_instr_iterator MII = MI->getIterator();
+
+    for (++MII; MII != MBB->instr_end() && MII->isInsideBundle(); ++MII) {
+        LowerInstruction(&*MII, MCB);
+    }
+
+    EmitToStreamer(*OutStreamer, MCB);
 }
 
 void ThruAsmPrinter::LowerInstruction(const MachineInstr *MI,
-                                       MCInst &OutMI) const {
-  OutMI.setOpcode(MI->getOpcode());
+                                       MCInst &MCB) const {
 
-  for (const MachineOperand &MO : MI->operands()) {
-    MCOperand MCOp = LowerOperand(MO);
-    if (MCOp.isValid())
-      OutMI.addOperand(MCOp);
-  }
+    MCInst *MCI = this->OutContext.createMCInst();
+    MCI->setOpcode(MI->getOpcode());
+    assert(MCI->getOpcode() == static_cast<unsigned>(MI->getOpcode()) &&
+           "MCI opcode should have been set on construction");
+
+    for (const MachineOperand &MO : MI->operands()) {
+        MCOperand MCOp = LowerOperand(MO);
+        if (MCOp.isValid())
+            MCI->addOperand(MCOp);
+    }
+    MCB.addOperand(MCOperand::createInst(MCI));
 }
 
 MCOperand ThruAsmPrinter::LowerOperand(const MachineOperand& MO) const {

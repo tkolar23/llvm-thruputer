@@ -26,7 +26,7 @@ def OPC_OP        : ThruOpcode<0b0110011>;
 def OPC_JALR      : ThruOpcode<0b1100111>;
 
 class ThruDir<dag outs, dag ins, string opdirstr, string argstr,
-              list<dag> pattern, DirFormat format>
+              list<dag> pattern, InstrItinClass itin, DirFormat format>
     : Instruction {
   field bits<32> Inst;
   
@@ -45,19 +45,22 @@ class ThruDir<dag outs, dag ins, string opdirstr, string argstr,
   let Pattern = pattern;
 
   let TSFlags{4-0} = format.Value;
+
+  let Itinerary = itin;
+
 }
 
 // Pseudo instructions
 class Pseudo<dag outs, dag ins, list<dag> pattern>
-    : ThruDir<outs, ins, "", "", pattern, DirFormatPseudo>,
+    : ThruDir<outs, ins, "", "", pattern, Itin_Pseudo, DirFormatPseudo>,
       Sched<[]> {
   let isPseudo = 1;
   let isCodeGenOnly = 1;
 }
 
 class ThruDirA<dag outs, dag ins, string opdirstr, string argstr,
-               bits<4> bodVal, list<dag> pattern>
-  : ThruDir<outs, ins, opdirstr, argstr, pattern, DirFormatA>
+               bits<4> bodVal, list<dag> pattern, InstrItinClass itin>
+  : ThruDir<outs, ins, opdirstr, argstr, pattern, itin, DirFormatA>
 {
   bits<4> yl;
   bits<3> yr;
@@ -73,13 +76,13 @@ class ThruDirA<dag outs, dag ins, string opdirstr, string argstr,
 }
 
 class ThruDirA_0<dag outs, dag ins, string opdirstr, string argstr,
-                 bits<4> bodVal, list<dag> pattern>
-  : ThruDirA<outs, ins, opdirstr, argstr, bodVal, pattern>;
+                 bits<4> bodVal, list<dag> pattern, InstrItinClass itin>
+  : ThruDirA<outs, ins, opdirstr, argstr, bodVal, pattern, itin>;
 
 // Right-side LV
 class ThruDirA_1<dag outs, dag ins, string opdirstr, string argstr,
-                 bits<4> bodVal, list<dag> pattern>
-  : ThruDirA<outs, ins, opdirstr, argstr, bodVal, pattern>
+                 bits<4> bodVal, list<dag> pattern, InstrItinClass itin>
+  : ThruDirA<outs, ins, opdirstr, argstr, bodVal, pattern, itin>
 {
   bits<32> lit;
   let yr = 0b111;
@@ -108,4 +111,4 @@ class ThruDirA_3<dag outs, dag ins, string opdirstr, string argstr,
 */
 
 class ThruDirFC<dag outs, dag ins, string opdirstr, string argstr>
-  : ThruDir<outs, ins, opdirstr, argstr, [], DirFormatFC>;
+  : ThruDir<outs, ins, opdirstr, argstr, [], Itin_Pseudo, DirFormatFC>;

@@ -33,6 +33,7 @@ protected:
   ThruFrameLowering FrameLowering;
   ThruTargetLowering TLInfo;
   ThruRegisterInfo RegInfo;
+  InstrItineraryData InstrItins;
 
 public:
   /// This constructor initializes the data members to match that
@@ -67,6 +68,10 @@ public:
 
   const ThruTargetLowering *getTargetLowering() const override {
     return &TLInfo;
+  }
+
+  const InstrItineraryData *getInstrItineraryData() const override {
+    return &InstrItins;
   }
 
   /// getMaxInlineSizeThreshold - Returns the maximum memset / memcpy size

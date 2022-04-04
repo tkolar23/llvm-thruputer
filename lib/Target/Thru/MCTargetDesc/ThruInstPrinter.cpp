@@ -36,11 +36,17 @@ static cl::opt<bool>
 void ThruInstPrinter::printInst(const MCInst *MI, uint64_t Address,
                                  StringRef Annot, const MCSubtargetInfo &STI,
                                  raw_ostream &O) {
-  const MCInst *NewMI = MI;
-  // If this is uncommented, the instructions won't print
-  // if (!PrintAliases || NoAliases)
-  printInstruction(NewMI, Address, O);
-  printAnnotation(O, Annot);
+    O << "{\n";
+
+    //print contents of Bundle between {}
+    for (auto const &I : drop_begin(*MI, 1)) {
+        MCInst const &MCI = *I.getInst();
+        printInstruction(&MCI, Address, O);
+        printAnnotation(O, Annot);
+        O << "\n";
+    }
+
+    O << "}\n";
 }
 
 void ThruInstPrinter::printRegName(raw_ostream &O, unsigned RegNo) const {

@@ -11,6 +11,7 @@ tablegen(LLVM ThruGenDAGISel.inc -gen-dag-isel)
 tablegen(LLVM ThruGenCallingConv.inc -gen-callingconv)
 tablegen(LLVM ThruGenSubtargetInfo.inc -gen-subtarget)
 tablegen(LLVM ThruGenMCPseudoLowering.inc -gen-pseudo-lowering)
+tablegen(LLVM ThruGenDFAPacketizer.inc -gen-dfa-packetizer)
 
 
 # ThruCommonTableGen must be defined
@@ -26,6 +27,7 @@ add_llvm_target(ThruCodeGen
   ThruTargetObjectFile.cpp
   ThruISelDAGToDAG.cpp
   ThruTargetMachine.cpp
+  ThruVLIWPacketizer.cpp
 
   LINK_COMPONENTS
   Analysis

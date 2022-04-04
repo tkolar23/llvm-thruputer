@@ -26,7 +26,13 @@ namespace llvm {
 
 class ThruInstrInfo : public ThruGenInstrInfo {
 public:
-  explicit ThruInstrInfo(const ThruSubtarget &STI);
+    explicit ThruInstrInfo(const ThruSubtarget &STI);
+
+    //Test if the given instruction should be considered a scheduling boundary.
+    bool isSchedulingBoundary(const MachineInstr &MI, const MachineBasicBlock *MBB, const MachineFunction &MF) const override;
+
+    // Create machine specific model for scheduling.
+    DFAPacketizer* CreateTargetScheduleState(const TargetSubtargetInfo &STI) const override;
 
 protected:
   const ThruSubtarget &Subtarget;

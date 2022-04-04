@@ -22,10 +22,19 @@
 
 using namespace llvm;
 
+namespace llvm {
+    void initializeThruPacketizerPass(PassRegistry&);
+    FunctionPass *createThruPacketizer();
+}
+
 extern "C" LLVM_EXTERNAL_VISIBILITY void LLVMInitializeThruTarget() {
   // Register the target.
   //- Little endian Target Machine
   RegisterTargetMachine<ThruTargetMachine> X(getTheThruTarget());
+
+  //add packetizer pass to backend
+  PassRegistry &PR = *PassRegistry::getPassRegistry();
+  initializeThruPacketizerPass(PR);
 }
 
 static std::string computeDataLayout() {
@@ -129,4 +138,5 @@ bool ThruPassConfig::addInstSelector() {
 // machine code is emitted. return true if -print-machineinstrs should
 // print out the code after the passes.
 void ThruPassConfig::addPreEmitPass() {
+    addPass(createThruPacketizer());
 }

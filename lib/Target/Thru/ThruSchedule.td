@@ -136,3 +136,37 @@ def ReadFCvtF32ToF64     : SchedRead;
 def ReadFCvtF64ToF32     : SchedRead;
 def ReadFClass32         : SchedRead;
 def ReadFClass64         : SchedRead;
+
+//Functional Units: For now identical accumulators
+def ACCX : FuncUnit;
+def ACCY : FuncUnit;
+
+//
+def PSEUDO_UNIT : FuncUnit;
+
+//Itinerary class for operations that can be done by either accumulator (simpleOD or BinaryOD)
+def Itin_Acc_X_Y : InstrItinClass;
+//Advanced BinaryOD's or UnaryOD's can only be on AccY
+def Itin_Acc_Y : InstrItinClass;
+//pseudo instructions that don't consume a functional unit (like FCDs)
+def Itin_Pseudo : InstrItinClass;
+//List of possible itineraries for instructions
+class ThruItin {
+    list <InstrItinData> ItinList = [
+        InstrItinData<Itin_Acc_X_Y, [InstrStage<1, [ACCX, ACCY]>]>,
+        InstrItinData<Itin_Acc_Y, [InstrStage<1, [ACCY]>]>,
+        InstrItinData<Itin_Pseudo, [InstrStage<1, [PSEUDO_UNIT]>]>
+    ];
+}
+
+def ThruItinList : ThruItin;
+
+//ThruPuter has 2 functional Units (accumulators)
+//no bypasses b/c singlecycle
+def ThruItineraries: ProcessorItineraries<[ACCX, ACCY, PSEUDO_UNIT], [], ThruItinList.ItinList>;
+
+def ThruModel : SchedMachineModel {
+    let IssueWidth = 2;
+    let Itineraries = ThruItineraries;
+    let CompleteModel = 0;
+}

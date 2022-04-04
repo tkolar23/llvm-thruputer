@@ -47,11 +47,11 @@ include "ThruInstrFormats.td"
 multiclass Acc <string opdirstr, bits<4> bodVal, SDNode OpNode> {
     def rr : ThruDirA_0<(outs GPR:$yo), (ins GPR:$yl, GPR:$yr), 
                          opdirstr, "$yo, $yl, $yr", bodVal,
-                         [(set i32:$yo, (OpNode i32:$yl, i32:$yr))]>;
+                         [(set i32:$yo, (OpNode i32:$yl, i32:$yr))], Itin_Acc_X_Y>;
 
     def rl : ThruDirA_1<(outs GPR:$yo), (ins i32imm:$lit, GPR:$yr),
                          opdirstr, "$yo, $lit, $yr", bodVal,
-                         [(set i32:$yo, (OpNode imm:$lit, i32:$yr))]>;
+                         [(set i32:$yo, (OpNode imm:$lit, i32:$yr))], Itin_Acc_X_Y>;
 
     /*
     def lr : ThruDirA_2<(outs GPR:$yo), (ins GPR:$yl, i32imm:$lit),

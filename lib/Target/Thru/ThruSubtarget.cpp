@@ -38,7 +38,11 @@ ThruSubtarget::ThruSubtarget(const Triple &TT, StringRef CPU,
       InstrInfo(initializeSubtargetDependencies(TT, CPU, FS, TM)),
       FrameLowering(*this),
       TLInfo(TM, *this),
-      RegInfo(*this) { }
+      RegInfo(*this),
+      InstrItins(getInstrItineraryForCPU("generic")){
+
+    assert(InstrItins.Itineraries != nullptr && "InstrItins not initialized");
+}
 
 
 ThruSubtarget &
