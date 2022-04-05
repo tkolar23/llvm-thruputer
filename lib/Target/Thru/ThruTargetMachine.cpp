@@ -42,21 +42,21 @@ static std::string computeDataLayout() {
 
   // Little endian
   Ret += "e";
+  
+  // 64-bit natural stack alignment
+  Ret += "-S64";
+  
+  // 64-bit pointers, 64-bit aligned
+  Ret += "-p:64:64";
+  
+  // 64-bit integers, 64 bit aligned
+  Ret += "-i64:64";
 
   // ELF name mangling
   Ret += "-m:e";
 
-  // 32-bit pointers, 32-bit aligned
-  Ret += "-p:32:32";
-
-  // 64-bit integers, 64 bit aligned
-  Ret += "-i64:64";
-
-  // 32-bit native integer width i.e register are 32-bit
-  Ret += "-n32";
-
-  // 128-bit natural stack alignment
-  Ret += "-S128";
+  // 64-bit native integer width i.e register are 64-bit
+  Ret += "-n64";
 
   return Ret;
 }
