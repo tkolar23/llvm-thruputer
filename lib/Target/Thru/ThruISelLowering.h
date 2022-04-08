@@ -25,7 +25,8 @@ namespace ThruISD {
 enum NodeType {
   // Start the numbering from where ISD NodeType finishes.
   FIRST_NUMBER = ISD::BUILTIN_OP_END,
-
+  // Branching
+  BR_CC,
   // Return
   Ret,
 };
@@ -54,6 +55,7 @@ private:
   SDValue LowerBlockAddress(SDValue Op, SelectionDAG &DAG) const;
   SDValue LowerConstantPool(SDValue Op, SelectionDAG &DAG) const;
   SDValue LowerRETURNADDR(SDValue Op, SelectionDAG &DAG) const;
+  SDValue lowerBRCOND(SDValue Op, SelectionDAG &DAG) const;
 
   using RegsToPassVector = SmallVector<std::pair<unsigned, SDValue>, 8>;
 

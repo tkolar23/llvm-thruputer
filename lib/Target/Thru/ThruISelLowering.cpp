@@ -64,6 +64,7 @@ ThruTargetLowering::ThruTargetLowering(const TargetMachine &TM,
   setOperationAction(ISD::GlobalAddress, MVT::i64, Custom);
   setOperationAction(ISD::BlockAddress,  MVT::i64, Custom);
   setOperationAction(ISD::ConstantPool,  MVT::i64, Custom);
+  setOperationAction(ISD::BRCOND, MVT::Other, Custom);
 
   // Set minimum and preferred function alignment (log2)
   setMinFunctionAlignment(Align(1));
@@ -460,6 +461,52 @@ ThruTargetLowering::LowerOperation(SDValue Op, SelectionDAG &DAG) const {
   case ISD::BlockAddress:         return LowerBlockAddress(Op, DAG);
   case ISD::ConstantPool:         return LowerConstantPool(Op, DAG);
   case ISD::RETURNADDR:           return LowerRETURNADDR(Op, DAG);
+  case ISD::BRCOND:               return lowerBRCOND(Op, DAG);
   default: llvm_unreachable("unimplemented operand");
   }
+}
+
+static void translateSetCCForBranch(const SDLoc &DL, SDValue &LHS, SDValue &RHS,
+                                    ISD::CondCode &CC, SelectionDAG &DAG) {
+  // Convert X > -1 to X >= 0.
+  if (CC == ISD::SETGT && isAllOnesConstant(RHS)) {
+    RHS = DAG.getConstant(0, DL, RHS.getValueType());
+    CC = ISD::SETGE;
+    return;
+  }
+  // Convert X < 1 to 0 >= X.
+  if (CC == ISD::SETLT && isOneConstant(RHS)) {
+    RHS = LHS;
+    LHS = DAG.getConstant(0, DL, RHS.getValueType());
+    CC = ISD::SETGE;
+    return;
+  }
+
+  switch (CC) {
+  default:
+    break;
+  case ISD::SETGT:
+  case ISD::SETLE:
+  case ISD::SETUGT:
+  case ISD::SETULE:
+    CC = ISD::getSetCCSwappedOperands(CC);
+    std::swap(LHS, RHS);
+    break;
+  }
+}
+
+SDValue ThruTargetLowering::lowerBRCOND(SDValue Op, SelectionDAG &DAG) const {
+  SDValue CondV = Op.getOperand(1);
+  SDLoc DL(Op);
+
+
+  SDValue LHS = CondV.getOperand(0);
+  SDValue RHS = CondV.getOperand(1);
+  ISD::CondCode CCVal = cast<CondCodeSDNode>(CondV.getOperand(2))->get();
+
+  // translateSetCCForBranch(DL, LHS, RHS, CCVal, DAG);
+
+  SDValue TargetCC = DAG.getCondCode(CCVal);
+  return DAG.getNode(ThruISD::BR_CC, DL, Op.getValueType(), Op.getOperand(0),
+                      LHS, RHS, TargetCC, Op.getOperand(2));
 }

@@ -80,12 +80,33 @@ multiclass Acc_nc <string opdirstr, BinaryOD bodval, SDNode OpNode> {
 }
 
 // Flow-Control Directive
-let hasSideEffects = 0, mayLoad = 0, mayStore = 0 in {
-let isCall = 1 in
-def FCD : ThruDirFC<(outs), (ins i64imm:$cond, i64imm:$targ), "", "">, Sched<[WriteJalr, ReadJalr]>
-    {
-        let AsmString = "FCD\t$cond, $targ";
-    }
+// Target Format, 1 Input
+multiclass TFormat1 <dag cond_outs, dag cond_ins, string condstr> {
+    // Jump
+    // def _t3 : ThruDirFC_T3<(outs), cond_outs, (ins), cond_ins, condstr>;
+    // Return
+    def _t6 : ThruDirFC_T6<(outs), cond_outs, (ins i8imm:$n), cond_ins, condstr>;
+}
+
+// Condition Format, 0 Inputs
+multiclass CFormat0 {
+    // Unconditional
+    defm _c9 : TFormat1<(outs), (ins), "Unconditional">;
+}
+
+// Condition Format, 3 Inputs
+// multiclass CFormat3 {
+//     // SrcA (r6) M
+//     defm _c4 : TFormat1;
+//     // SrcA (r6) I
+//     defm _c5 : TFormat1;
+//     // SrcA (r4) SrcB
+//     defm _c6 : TFormat1;
+
+// }
+
+let hasSideEffects = 0, mayLoad = 0, mayStore = 0, isCall = 1 in {
+    defm FCD : CFormat0;
 }
 
 //===----------------------------------------------------------------------===//
@@ -103,8 +124,8 @@ defm UMIN : Acc<"min", BOD_MIN, umin>, Sched<[WriteIALU, ReadIALU, ReadIALU]>;
 defm SMAX : Acc<"max", BOD_MAX, smax>, Sched<[WriteIALU, ReadIALU, ReadIALU]>;
 defm UMAX : Acc<"max", BOD_MAX, umax>, Sched<[WriteIALU, ReadIALU, ReadIALU]>;
 // defm CAST : Acc<"cast", BOD_MAX, bitcast>, Sched<[WriteIALU, ReadIALU, ReadIALU]>;
-defm SHL : Acc_nc<"shl", BOD_SHL, shl>, Sched<[WriteIALU, ReadIALU, ReadIALU]>;
-defm SHR : Acc_nc<"shr", BOD_SHR, srl>, Sched<[WriteIALU, ReadIALU, ReadIALU]>;
+// defm SHL : Acc_nc<"shl", BOD_SHL, shl>, Sched<[WriteIALU, ReadIALU, ReadIALU]>;
+// defm SHR : Acc_nc<"shr", BOD_SHR, srl>, Sched<[WriteIALU, ReadIALU, ReadIALU]>;
 defm AND : Acc<"and", BOD_AND, and>, Sched<[WriteIALU, ReadIALU, ReadIALU]>;
 defm OR : Acc<"or", BOD_OR, or>, Sched<[WriteIALU, ReadIALU, ReadIALU]>;
 defm XOR : Acc<"xor", BOD_XOR, xor>, Sched<[WriteIALU, ReadIALU, ReadIALU]>;
@@ -119,6 +140,11 @@ def ADJCALLSTACKUP   : Pseudo<(outs), (ins i64imm:$amt1, i64imm:$amt2), [(callse
 } // end Defs = [X2], Uses = [X2]
 
 let isReturn = 1, isBarrier = 1, isTerminator = 1 in
-def PseudoRET : Pseudo<(outs), (ins), [(thru_ret)]>, PseudoInstExpansion<(FCD 0x011111111110, 0b11100010001)>;
+def PseudoRET : Pseudo<(outs), (ins), [(thru_ret)]>,
+                PseudoInstExpansion<(FCD_c9_t6 0b0001)>;
 
-// def : InstAlias<"Return(1)", (FCD 0x11111111110, 0b11100010001), 4>;
+// TODO: Fill this in
+// let isBarrier = 1, isBranch = 1, isTerminator = 1 in
+// def PseudoBR : Pseudo<(outs), (ins i8imm:$targ), [(br bb:$targ)]>, PseudoInstExpansion<(FCD  i8imm:$targ)>;
+
+def : InstAlias<"Return(1)", (FCD_c9_t6 0b0001), 4>;
